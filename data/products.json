@@ -1,0 +1,810 @@
+[
+    {
+        "item_id": 100,
+        "price": 29.76,
+        "brand": "LG",
+        "category": "Electronics",
+        "rating": 2.1,
+        "in_stock": true
+    },
+    {
+        "item_id": 101,
+        "price": 591.81,
+        "brand": "Nike",
+        "category": "Sports",
+        "rating": 3.7,
+        "in_stock": true
+    },
+    {
+        "item_id": 102,
+        "price": 35.11,
+        "brand": "Dove",
+        "category": "Beauty & Personal Care",
+        "rating": 1.4,
+        "in_stock": true
+    },
+    {
+        "item_id": 103,
+        "price": 485.59,
+        "brand": "Penguin",
+        "category": "Books",
+        "rating": 3.2,
+        "in_stock": false
+    },
+    {
+        "item_id": 104,
+        "price": 364.88,
+        "brand": "Zara",
+        "category": "Fashion",
+        "rating": 2.1,
+        "in_stock": true
+    },
+    {
+        "item_id": 105,
+        "price": 561.53,
+        "brand": "Adidas",
+        "category": "Sports",
+        "rating": 2.4,
+        "in_stock": true
+    },
+    {
+        "item_id": 106,
+        "price": 766.2,
+        "brand": "Puma",
+        "category": "Sports",
+        "rating": 2.3,
+        "in_stock": true
+    },
+    {
+        "item_id": 107,
+        "price": 86.41,
+        "brand": "L'Oreal",
+        "category": "Beauty & Personal Care",
+        "rating": 4.4,
+        "in_stock": false
+    },
+    {
+        "item_id": 108,
+        "price": 586.49,
+        "brand": "Samsung",
+        "category": "Electronics",
+        "rating": 3.1,
+        "in_stock": false
+    },
+    {
+        "item_id": 109,
+        "price": 446.11,
+        "brand": "Sony",
+        "category": "Electronics",
+        "rating": 4.3,
+        "in_stock": false
+    },
+    {
+        "item_id": 110,
+        "price": 566.61,
+        "brand": "Puma",
+        "category": "Sports",
+        "rating": 1.2,
+        "in_stock": true
+    },
+    {
+        "item_id": 111,
+        "price": 788.33,
+        "brand": "Uniqlo",
+        "category": "Fashion",
+        "rating": 4.4,
+        "in_stock": true
+    },
+    {
+        "item_id": 112,
+        "price": 229.6,
+        "brand": "L'Oreal",
+        "category": "Beauty & Personal Care",
+        "rating": 3.5,
+        "in_stock": false
+    },
+    {
+        "item_id": 113,
+        "price": 302.44,
+        "brand": "Adidas",
+        "category": "Sports",
+        "rating": 1.8,
+        "in_stock": false
+    },
+    {
+        "item_id": 114,
+        "price": 491.21,
+        "brand": "Sony",
+        "category": "Electronics",
+        "rating": 1.7,
+        "in_stock": true
+    },
+    {
+        "item_id": 115,
+        "price": 375.19,
+        "brand": "Adidas",
+        "category": "Sports",
+        "rating": 2.1,
+        "in_stock": true
+    },
+    {
+        "item_id": 116,
+        "price": 675.85,
+        "brand": "IKEA",
+        "category": "Home & Kitchen",
+        "rating": 4.1,
+        "in_stock": true
+    },
+    {
+        "item_id": 117,
+        "price": 645.99,
+        "brand": "Samsung",
+        "category": "Electronics",
+        "rating": 2.6,
+        "in_stock": true
+    },
+    {
+        "item_id": 118,
+        "price": 731.38,
+        "brand": "Puma",
+        "category": "Sports",
+        "rating": 3.3,
+        "in_stock": false
+    },
+    {
+        "item_id": 119,
+        "price": 527.8,
+        "brand": "Puma",
+        "category": "Sports",
+        "rating": 2.6,
+        "in_stock": false
+    },
+    {
+        "item_id": 120,
+        "price": 219.26,
+        "brand": "Nike",
+        "category": "Sports",
+        "rating": 2.0,
+        "in_stock": false
+    },
+    {
+        "item_id": 121,
+        "price": 719.28,
+        "brand": "Dove",
+        "category": "Beauty & Personal Care",
+        "rating": 2.6,
+        "in_stock": true
+    },
+    {
+        "item_id": 122,
+        "price": 412.53,
+        "brand": "Nike",
+        "category": "Sports",
+        "rating": 1.4,
+        "in_stock": true
+    },
+    {
+        "item_id": 123,
+        "price": 130.74,
+        "brand": "LG",
+        "category": "Electronics",
+        "rating": 1.6,
+        "in_stock": false
+    },
+    {
+        "item_id": 124,
+        "price": 313.97,
+        "brand": "Sony",
+        "category": "Electronics",
+        "rating": 3.4,
+        "in_stock": false
+    },
+    {
+        "item_id": 125,
+        "price": 208.62,
+        "brand": "Penguin",
+        "category": "Books",
+        "rating": 3.2,
+        "in_stock": true
+    },
+    {
+        "item_id": 126,
+        "price": 548.55,
+        "brand": "LG",
+        "category": "Electronics",
+        "rating": 3.1,
+        "in_stock": false
+    },
+    {
+        "item_id": 127,
+        "price": 98.13,
+        "brand": "IKEA",
+        "category": "Home & Kitchen",
+        "rating": 2.7,
+        "in_stock": false
+    },
+    {
+        "item_id": 128,
+        "price": 763.51,
+        "brand": "Apple",
+        "category": "Electronics",
+        "rating": 4.5,
+        "in_stock": false
+    },
+    {
+        "item_id": 129,
+        "price": 611.95,
+        "brand": "Penguin",
+        "category": "Books",
+        "rating": 3.0,
+        "in_stock": true
+    },
+    {
+        "item_id": 130,
+        "price": 674.92,
+        "brand": "Uniqlo",
+        "category": "Fashion",
+        "rating": 3.0,
+        "in_stock": true
+    },
+    {
+        "item_id": 131,
+        "price": 305.39,
+        "brand": "Nike",
+        "category": "Sports",
+        "rating": 1.6,
+        "in_stock": true
+    },
+    {
+        "item_id": 132,
+        "price": 396.0,
+        "brand": "IKEA",
+        "category": "Home & Kitchen",
+        "rating": 1.4,
+        "in_stock": false
+    },
+    {
+        "item_id": 133,
+        "price": 199.17,
+        "brand": "Uniqlo",
+        "category": "Fashion",
+        "rating": 2.0,
+        "in_stock": true
+    },
+    {
+        "item_id": 134,
+        "price": 588.21,
+        "brand": "Sony",
+        "category": "Electronics",
+        "rating": 4.3,
+        "in_stock": true
+    },
+    {
+        "item_id": 135,
+        "price": 531.2,
+        "brand": "Nike",
+        "category": "Sports",
+        "rating": 4.8,
+        "in_stock": true
+    },
+    {
+        "item_id": 136,
+        "price": 426.86,
+        "brand": "H&M",
+        "category": "Fashion",
+        "rating": 3.4,
+        "in_stock": true
+    },
+    {
+        "item_id": 137,
+        "price": 573.23,
+        "brand": "Puma",
+        "category": "Sports",
+        "rating": 2.6,
+        "in_stock": false
+    },
+    {
+        "item_id": 138,
+        "price": 720.7,
+        "brand": "LEGO",
+        "category": "Toys & Games",
+        "rating": 2.8,
+        "in_stock": true
+    },
+    {
+        "item_id": 139,
+        "price": 60.58,
+        "brand": "Zara",
+        "category": "Fashion",
+        "rating": 1.1,
+        "in_stock": true
+    },
+    {
+        "item_id": 140,
+        "price": 15.68,
+        "brand": "Zara",
+        "category": "Fashion",
+        "rating": 3.8,
+        "in_stock": true
+    },
+    {
+        "item_id": 141,
+        "price": 63.25,
+        "brand": "Zara",
+        "category": "Fashion",
+        "rating": 1.1,
+        "in_stock": false
+    },
+    {
+        "item_id": 142,
+        "price": 416.18,
+        "brand": "Sony",
+        "category": "Electronics",
+        "rating": 2.1,
+        "in_stock": false
+    },
+    {
+        "item_id": 143,
+        "price": 435.99,
+        "brand": "Puma",
+        "category": "Sports",
+        "rating": 3.9,
+        "in_stock": false
+    },
+    {
+        "item_id": 144,
+        "price": 629.85,
+        "brand": "Zara",
+        "category": "Fashion",
+        "rating": 4.2,
+        "in_stock": true
+    },
+    {
+        "item_id": 145,
+        "price": 86.58,
+        "brand": "LG",
+        "category": "Electronics",
+        "rating": 2.7,
+        "in_stock": false
+    },
+    {
+        "item_id": 146,
+        "price": 378.95,
+        "brand": "Dove",
+        "category": "Beauty & Personal Care",
+        "rating": 3.9,
+        "in_stock": true
+    },
+    {
+        "item_id": 147,
+        "price": 328.07,
+        "brand": "Samsung",
+        "category": "Electronics",
+        "rating": 2.4,
+        "in_stock": true
+    },
+    {
+        "item_id": 148,
+        "price": 161.36,
+        "brand": "Zara",
+        "category": "Fashion",
+        "rating": 3.1,
+        "in_stock": true
+    },
+    {
+        "item_id": 149,
+        "price": 154.96,
+        "brand": "Dove",
+        "category": "Beauty & Personal Care",
+        "rating": 2.9,
+        "in_stock": true
+    },
+    {
+        "item_id": 150,
+        "price": 648.34,
+        "brand": "LEGO",
+        "category": "Toys & Games",
+        "rating": 4.4,
+        "in_stock": true
+    },
+    {
+        "item_id": 151,
+        "price": 525.19,
+        "brand": "Samsung",
+        "category": "Electronics",
+        "rating": 3.2,
+        "in_stock": true
+    },
+    {
+        "item_id": 152,
+        "price": 741.83,
+        "brand": "Sony",
+        "category": "Electronics",
+        "rating": 4.4,
+        "in_stock": true
+    },
+    {
+        "item_id": 153,
+        "price": 393.66,
+        "brand": "Dove",
+        "category": "Beauty & Personal Care",
+        "rating": 1.9,
+        "in_stock": false
+    },
+    {
+        "item_id": 154,
+        "price": 140.06,
+        "brand": "Samsung",
+        "category": "Electronics",
+        "rating": 1.0,
+        "in_stock": false
+    },
+    {
+        "item_id": 155,
+        "price": 741.95,
+        "brand": "H&M",
+        "category": "Fashion",
+        "rating": 4.1,
+        "in_stock": false
+    },
+    {
+        "item_id": 156,
+        "price": 560.31,
+        "brand": "Dove",
+        "category": "Beauty & Personal Care",
+        "rating": 3.9,
+        "in_stock": false
+    },
+    {
+        "item_id": 157,
+        "price": 160.02,
+        "brand": "Nike",
+        "category": "Sports",
+        "rating": 1.9,
+        "in_stock": true
+    },
+    {
+        "item_id": 158,
+        "price": 600.9,
+        "brand": "Samsung",
+        "category": "Electronics",
+        "rating": 1.2,
+        "in_stock": false
+    },
+    {
+        "item_id": 159,
+        "price": 736.32,
+        "brand": "Penguin",
+        "category": "Books",
+        "rating": 3.1,
+        "in_stock": true
+    },
+    {
+        "item_id": 160,
+        "price": 73.29,
+        "brand": "Penguin",
+        "category": "Books",
+        "rating": 1.7,
+        "in_stock": true
+    },
+    {
+        "item_id": 161,
+        "price": 328.98,
+        "brand": "Zara",
+        "category": "Fashion",
+        "rating": 4.8,
+        "in_stock": true
+    },
+    {
+        "item_id": 162,
+        "price": 499.31,
+        "brand": "Samsung",
+        "category": "Electronics",
+        "rating": 2.7,
+        "in_stock": false
+    },
+    {
+        "item_id": 163,
+        "price": 171.36,
+        "brand": "H&M",
+        "category": "Fashion",
+        "rating": 3.9,
+        "in_stock": true
+    },
+    {
+        "item_id": 164,
+        "price": 322.67,
+        "brand": "H&M",
+        "category": "Fashion",
+        "rating": 3.7,
+        "in_stock": false
+    },
+    {
+        "item_id": 165,
+        "price": 259.78,
+        "brand": "LEGO",
+        "category": "Toys & Games",
+        "rating": 4.0,
+        "in_stock": true
+    },
+    {
+        "item_id": 166,
+        "price": 372.05,
+        "brand": "Apple",
+        "category": "Electronics",
+        "rating": 5.0,
+        "in_stock": true
+    },
+    {
+        "item_id": 167,
+        "price": 434.73,
+        "brand": "Sony",
+        "category": "Electronics",
+        "rating": 3.0,
+        "in_stock": true
+    },
+    {
+        "item_id": 168,
+        "price": 705.88,
+        "brand": "Philips",
+        "category": "Home & Kitchen",
+        "rating": 4.5,
+        "in_stock": false
+    },
+    {
+        "item_id": 169,
+        "price": 134.62,
+        "brand": "Uniqlo",
+        "category": "Fashion",
+        "rating": 4.3,
+        "in_stock": false
+    },
+    {
+        "item_id": 170,
+        "price": 16.18,
+        "brand": "Penguin",
+        "category": "Books",
+        "rating": 4.3,
+        "in_stock": false
+    },
+    {
+        "item_id": 171,
+        "price": 751.75,
+        "brand": "LG",
+        "category": "Electronics",
+        "rating": 1.5,
+        "in_stock": true
+    },
+    {
+        "item_id": 172,
+        "price": 596.51,
+        "brand": "LG",
+        "category": "Electronics",
+        "rating": 1.6,
+        "in_stock": false
+    },
+    {
+        "item_id": 173,
+        "price": 576.91,
+        "brand": "Puma",
+        "category": "Sports",
+        "rating": 1.8,
+        "in_stock": false
+    },
+    {
+        "item_id": 174,
+        "price": 395.94,
+        "brand": "Penguin",
+        "category": "Books",
+        "rating": 4.6,
+        "in_stock": true
+    },
+    {
+        "item_id": 175,
+        "price": 511.08,
+        "brand": "Sony",
+        "category": "Electronics",
+        "rating": 4.3,
+        "in_stock": true
+    },
+    {
+        "item_id": 176,
+        "price": 273.51,
+        "brand": "Apple",
+        "category": "Electronics",
+        "rating": 1.5,
+        "in_stock": false
+    },
+    {
+        "item_id": 177,
+        "price": 595.57,
+        "brand": "Adidas",
+        "category": "Sports",
+        "rating": 3.2,
+        "in_stock": false
+    },
+    {
+        "item_id": 178,
+        "price": 98.38,
+        "brand": "Apple",
+        "category": "Electronics",
+        "rating": 4.8,
+        "in_stock": true
+    },
+    {
+        "item_id": 179,
+        "price": 669.33,
+        "brand": "Samsung",
+        "category": "Electronics",
+        "rating": 3.3,
+        "in_stock": true
+    },
+    {
+        "item_id": 180,
+        "price": 110.68,
+        "brand": "Dove",
+        "category": "Beauty & Personal Care",
+        "rating": 2.2,
+        "in_stock": true
+    },
+    {
+        "item_id": 181,
+        "price": 175.96,
+        "brand": "Philips",
+        "category": "Home & Kitchen",
+        "rating": 2.0,
+        "in_stock": true
+    },
+    {
+        "item_id": 182,
+        "price": 626.29,
+        "brand": "Philips",
+        "category": "Home & Kitchen",
+        "rating": 4.5,
+        "in_stock": false
+    },
+    {
+        "item_id": 183,
+        "price": 741.35,
+        "brand": "Nike",
+        "category": "Sports",
+        "rating": 1.9,
+        "in_stock": true
+    },
+    {
+        "item_id": 184,
+        "price": 706.32,
+        "brand": "Adidas",
+        "category": "Sports",
+        "rating": 1.1,
+        "in_stock": false
+    },
+    {
+        "item_id": 185,
+        "price": 643.77,
+        "brand": "Dove",
+        "category": "Beauty & Personal Care",
+        "rating": 4.5,
+        "in_stock": true
+    },
+    {
+        "item_id": 186,
+        "price": 135.77,
+        "brand": "H&M",
+        "category": "Fashion",
+        "rating": 3.8,
+        "in_stock": false
+    },
+    {
+        "item_id": 187,
+        "price": 688.29,
+        "brand": "Samsung",
+        "category": "Electronics",
+        "rating": 1.9,
+        "in_stock": false
+    },
+    {
+        "item_id": 188,
+        "price": 251.1,
+        "brand": "Philips",
+        "category": "Home & Kitchen",
+        "rating": 4.2,
+        "in_stock": true
+    },
+    {
+        "item_id": 189,
+        "price": 28.69,
+        "brand": "Zara",
+        "category": "Fashion",
+        "rating": 1.8,
+        "in_stock": false
+    },
+    {
+        "item_id": 190,
+        "price": 692.84,
+        "brand": "H&M",
+        "category": "Fashion",
+        "rating": 4.9,
+        "in_stock": false
+    },
+    {
+        "item_id": 191,
+        "price": 516.77,
+        "brand": "Philips",
+        "category": "Home & Kitchen",
+        "rating": 2.6,
+        "in_stock": false
+    },
+    {
+        "item_id": 192,
+        "price": 101.12,
+        "brand": "Apple",
+        "category": "Electronics",
+        "rating": 4.9,
+        "in_stock": true
+    },
+    {
+        "item_id": 193,
+        "price": 40.22,
+        "brand": "H&M",
+        "category": "Fashion",
+        "rating": 3.4,
+        "in_stock": false
+    },
+    {
+        "item_id": 194,
+        "price": 354.75,
+        "brand": "IKEA",
+        "category": "Home & Kitchen",
+        "rating": 4.9,
+        "in_stock": true
+    },
+    {
+        "item_id": 195,
+        "price": 720.61,
+        "brand": "L'Oreal",
+        "category": "Beauty & Personal Care",
+        "rating": 1.8,
+        "in_stock": true
+    },
+    {
+        "item_id": 196,
+        "price": 11.34,
+        "brand": "Dove",
+        "category": "Beauty & Personal Care",
+        "rating": 4.7,
+        "in_stock": true
+    },
+    {
+        "item_id": 197,
+        "price": 350.72,
+        "brand": "Philips",
+        "category": "Home & Kitchen",
+        "rating": 4.8,
+        "in_stock": false
+    },
+    {
+        "item_id": 198,
+        "price": 534.08,
+        "brand": "IKEA",
+        "category": "Home & Kitchen",
+        "rating": 1.5,
+        "in_stock": false
+    },
+    {
+        "item_id": 199,
+        "price": 254.33,
+        "brand": "Penguin",
+        "category": "Books",
+        "rating": 2.6,
+        "in_stock": false
+    },
+    {
+        "item_id": 200,
+        "price": 447.99,
+        "brand": "Uniqlo",
+        "category": "Fashion",
+        "rating": 1.8,
+        "in_stock": false
+    }
+]
