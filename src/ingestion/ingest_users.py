@@ -91,7 +91,7 @@ class UserDataIngestion:
     
     def merge_user_data(self, dfs: List[pd.DataFrame]) -> pd.DataFrame:
         """
-        Merge multiple user dataframes
+        Merge multiple user dataframes and clean data
         
         Args:
             dfs: List of user DataFrames to merge
@@ -105,6 +105,28 @@ class UserDataIngestion:
         merged_df = pd.concat(dfs, ignore_index=True)
         
         logger.info(f"Merged dataset contains {len(merged_df)} total records")
+        
+        # Clean user_id
+        if 'user_id' in merged_df.columns:
+            merged_df['user_id'] = pd.to_numeric(merged_df['user_id'], errors='coerce')
+            merged_df = merged_df.dropna(subset=['user_id'])
+            merged_df['user_id'] = merged_df['user_id'].astype(int)
+            
+        # Clean age: Force to numeric, handle errors
+        if 'age' in merged_df.columns:
+            merged_df['age'] = pd.to_numeric(merged_df['age'], errors='coerce')
+            # Fill NaN age with median or -1? For raw layer, keeping as float with NaN is better,
+            # but for Parquet compatibility with int columns, nullable INT64 is preferred if supported.
+            # Here we'll leave as float to support NaNs or fill with -1 if strict int needed.
+            # Let's keep as float for now to preserve missing info
+            pass
+
+        # Clean string columns
+        for col in ['gender', 'device']:
+            if col in merged_df.columns:
+                merged_df[col] = merged_df[col].astype(str).str.strip()
+                # Replace 'nan' string with actual None
+                merged_df.loc[merged_df[col].str.lower() == 'nan', col] = None
         
         # Log any duplicates found
         duplicate_count = merged_df.duplicated(subset=['user_id']).sum()

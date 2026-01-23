@@ -1,0 +1,39 @@
+{
+  "source": "transactions",
+  "data_type": "prepared",
+  "timestamp": "2026-01-23T16:20:28.878542",
+  "file_path": "storage\\prepared\\transactions\\2026-01-23\\transactions_clean.parquet",
+  "file_size_bytes": 43514,
+  "record_count": 2954,
+  "schema": {
+    "columns": [
+      "user_id",
+      "item_id",
+      "view_mode",
+      "rating",
+      "timestamp",
+      "view_mode_encoded",
+      "implicit_score"
+    ],
+    "dtypes": {
+      "user_id": "int64",
+      "item_id": "int64",
+      "view_mode": "object",
+      "rating": "int64",
+      "timestamp": "datetime64[ns]",
+      "view_mode_encoded": "int32",
+      "implicit_score": "int64"
+    }
+  },
+  "checksum_md5": "ce4d185497f9e9f0f8d0d6210274d450",
+  "null_counts": {
+    "user_id": 0,
+    "item_id": 0,
+    "view_mode": 0,
+    "rating": 0,
+    "timestamp": 0,
+    "view_mode_encoded": 0,
+    "implicit_score": 0
+  },
+  "memory_usage_bytes": "316843"
+}

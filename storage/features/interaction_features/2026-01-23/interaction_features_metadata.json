@@ -1,0 +1,51 @@
+{
+  "source": "interaction_features",
+  "data_type": "features",
+  "timestamp": "2026-01-23T16:20:30.197950",
+  "file_path": "storage\\features\\interaction_features\\2026-01-23\\interaction_features.parquet",
+  "file_size_bytes": 49655,
+  "record_count": 2954,
+  "schema": {
+    "columns": [
+      "user_id",
+      "item_id",
+      "view_mode",
+      "rating",
+      "timestamp",
+      "view_mode_encoded",
+      "implicit_score",
+      "days_since",
+      "recency_weight",
+      "rating_normalized",
+      "user_item_affinity"
+    ],
+    "dtypes": {
+      "user_id": "int64",
+      "item_id": "int64",
+      "view_mode": "object",
+      "rating": "int64",
+      "timestamp": "datetime64[ns]",
+      "view_mode_encoded": "int32",
+      "implicit_score": "int64",
+      "days_since": "int64",
+      "recency_weight": "float64",
+      "rating_normalized": "float64",
+      "user_item_affinity": "float64"
+    }
+  },
+  "checksum_md5": "640b44aa788bb6ea4826a3706d785b6b",
+  "null_counts": {
+    "user_id": 0,
+    "item_id": 0,
+    "view_mode": 0,
+    "rating": 0,
+    "timestamp": 0,
+    "view_mode_encoded": 0,
+    "implicit_score": 0,
+    "days_since": 0,
+    "recency_weight": 0,
+    "rating_normalized": 0,
+    "user_item_affinity": 0
+  },
+  "memory_usage_bytes": "387871"
+}

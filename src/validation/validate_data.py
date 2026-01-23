@@ -10,6 +10,7 @@ This module sets up and runs data validation for all datasets:
 import sys
 import json
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, List
@@ -20,6 +21,20 @@ from src.utils.logger import get_logger
 from src.utils.storage import DataLakeStorage
 
 logger = get_logger(__name__)
+
+
+class NumpyEncoder(json.JSONEncoder):
+    """Custom encoder for NumPy types"""
+    def default(self, obj):
+        if isinstance(obj, (np.bool_, bool)):
+            return bool(obj)
+        if isinstance(obj, (np.integer, int)):
+            return int(obj)
+        if isinstance(obj, (np.floating, float)):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
 
 class DataValidator:
@@ -37,7 +52,7 @@ class DataValidator:
         
         results = {
             'dataset': 'users',
-            'record_count': len(df),
+            'record_count': int(len(df)),
             'validations': [],
             'quality_score': 0.0
         }
@@ -48,7 +63,7 @@ class DataValidator:
         duplicate_ids = df.duplicated(subset=['user_id']).sum()
         checks.append({
             'check': 'user_id_unique',
-            'passed': duplicate_ids == 0,
+            'passed': bool(duplicate_ids == 0),
             'details': f"{duplicate_ids} duplicates found"
         })
         
@@ -58,7 +73,7 @@ class DataValidator:
             age_pass_rate = age_in_range / len(df)
             checks.append({
                 'check': 'age_in_range_18_65',
-                'passed': age_pass_rate >= 0.95,
+                'passed': bool(age_pass_rate >= 0.95),
                 'details': f"{age_pass_rate:.1%} within range"
             })
         
@@ -68,7 +83,7 @@ class DataValidator:
             gender_pass_rate = valid_genders / len(df)
             checks.append({
                 'check': 'gender_valid',
-                'passed': gender_pass_rate >= 0.95,
+                'passed': bool(gender_pass_rate >= 0.95),
                 'details': f"{gender_pass_rate:.1%} valid values"
             })
         
@@ -78,7 +93,7 @@ class DataValidator:
             device_pass_rate = valid_devices / len(df)
             checks.append({
                 'check': 'device_valid',
-                'passed': device_pass_rate >= 0.95,
+                'passed': bool(device_pass_rate >= 0.95),
                 'details': f"{device_pass_rate:.1%} valid values"
             })
         
@@ -87,7 +102,7 @@ class DataValidator:
         critical_nulls = null_counts['user_id'] if 'user_id' in df.columns else 0
         checks.append({
             'check': 'no_null_user_ids',
-            'passed': critical_nulls == 0,
+            'passed': bool(critical_nulls == 0),
             'details': f"{critical_nulls} nulls in user_id"
         })
         
@@ -103,7 +118,7 @@ class DataValidator:
         
         results = {
             'dataset': 'products',
-            'record_count': len(df),
+            'record_count': int(len(df)),
             'validations': [],
             'quality_score': 0.0
         }
@@ -114,7 +129,7 @@ class DataValidator:
         duplicate_ids = df.duplicated(subset=['item_id']).sum()
         checks.append({
             'check': 'item_id_unique',
-            'passed': duplicate_ids == 0,
+            'passed': bool(duplicate_ids == 0),
             'details': f"{duplicate_ids} duplicates found"
         })
         
@@ -124,7 +139,7 @@ class DataValidator:
             price_pass_rate = valid_prices / len(df)
             checks.append({
                 'check': 'price_positive',
-                'passed': price_pass_rate >= 0.99,
+                'passed': bool(price_pass_rate >= 0.99),
                 'details': f"{price_pass_rate:.1%} positive prices"
             })
         
@@ -134,7 +149,7 @@ class DataValidator:
             rating_pass_rate = valid_ratings / len(df)
             checks.append({
                 'check': 'rating_in_range_1_5',
-                'passed': rating_pass_rate >= 0.95,
+                'passed': bool(rating_pass_rate >= 0.95),
                 'details': f"{rating_pass_rate:.1%} within range"
             })
         
@@ -145,7 +160,7 @@ class DataValidator:
                 null_count = df[field].isnull().sum()
                 checks.append({
                     'check': f'{field}_not_null',
-                    'passed': null_count == 0,
+                    'passed': bool(null_count == 0),
                     'details': f"{null_count} nulls in {field}"
                 })
         
@@ -161,7 +176,7 @@ class DataValidator:
         
         results = {
             'dataset': 'transactions',
-            'record_count': len(df),
+            'record_count': int(len(df)),
             'validations': [],
             'quality_score': 0.0
         }
@@ -174,7 +189,7 @@ class DataValidator:
             user_fk_rate = valid_users / len(df)
             checks.append({
                 'check': 'user_id_foreign_key',
-                'passed': user_fk_rate >= 0.90,
+                'passed': bool(user_fk_rate >= 0.90),
                 'details': f"{user_fk_rate:.1%} valid user references"
             })
         
@@ -184,7 +199,7 @@ class DataValidator:
             item_fk_rate = valid_items / len(df)
             checks.append({
                 'check': 'item_id_foreign_key',
-                'passed': item_fk_rate >= 0.90,
+                'passed': bool(item_fk_rate >= 0.90),
                 'details': f"{item_fk_rate:.1%} valid item references"
             })
         
@@ -194,7 +209,7 @@ class DataValidator:
             mode_pass_rate = valid_modes / len(df)
             checks.append({
                 'check': 'view_mode_valid',
-                'passed': mode_pass_rate >= 0.99,
+                'passed': bool(mode_pass_rate >= 0.99),
                 'details': f"{mode_pass_rate:.1%} valid interaction types"
             })
         
@@ -204,7 +219,7 @@ class DataValidator:
             rating_pass_rate = valid_ratings / len(df)
             checks.append({
                 'check': 'rating_in_range_1_5',
-                'passed': rating_pass_rate >= 0.95,
+                'passed': bool(rating_pass_rate >= 0.95),
                 'details': f"{rating_pass_rate:.1%} within range"
             })
         
@@ -214,7 +229,7 @@ class DataValidator:
             timestamp_rate = valid_timestamps / len(df)
             checks.append({
                 'check': 'timestamp_valid',
-                'passed': timestamp_rate >= 0.99,
+                'passed': bool(timestamp_rate >= 0.99),
                 'details': f"{timestamp_rate:.1%} valid timestamps"
             })
         
@@ -273,7 +288,7 @@ class DataValidator:
         output_file = output_dir / f"validation_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         
         with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2)
+            json.dump(results, f, indent=2, cls=NumpyEncoder)
         
         logger.info(f"Saved validation results to {output_file}")
         return str(output_file)

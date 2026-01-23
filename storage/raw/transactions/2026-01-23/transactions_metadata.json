@@ -1,7 +1,7 @@
 {
   "source": "transactions",
   "data_type": "raw",
-  "timestamp": "2026-01-23T00:15:07.352673",
+  "timestamp": "2026-01-23T16:20:28.488241",
   "file_path": "storage\\raw\\transactions\\2026-01-23\\transactions.parquet",
   "file_size_bytes": 41308,
   "record_count": 3000,

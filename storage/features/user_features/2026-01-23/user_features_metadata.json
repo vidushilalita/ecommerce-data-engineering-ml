@@ -1,0 +1,51 @@
+{
+  "source": "user_features",
+  "data_type": "features",
+  "timestamp": "2026-01-23T16:20:30.134572",
+  "file_path": "storage\\features\\user_features\\2026-01-23\\user_features.parquet",
+  "file_size_bytes": 18279,
+  "record_count": 917,
+  "schema": {
+    "columns": [
+      "user_id",
+      "user_activity_count",
+      "avg_rating_given",
+      "purchase_ratio",
+      "preferred_category",
+      "age",
+      "gender",
+      "device",
+      "gender_encoded",
+      "device_encoded",
+      "age_normalized"
+    ],
+    "dtypes": {
+      "user_id": "int32",
+      "user_activity_count": "int64",
+      "avg_rating_given": "float64",
+      "purchase_ratio": "float64",
+      "preferred_category": "object",
+      "age": "float64",
+      "gender": "object",
+      "device": "object",
+      "gender_encoded": "int32",
+      "device_encoded": "int32",
+      "age_normalized": "float64"
+    }
+  },
+  "checksum_md5": "e4aea6310948a2a75c4d102f5e24cbe9",
+  "null_counts": {
+    "user_id": 0,
+    "user_activity_count": 0,
+    "avg_rating_given": 0,
+    "purchase_ratio": 0,
+    "preferred_category": 0,
+    "age": 0,
+    "gender": 0,
+    "device": 0,
+    "gender_encoded": 0,
+    "device_encoded": 0,
+    "age_normalized": 0
+  },
+  "memory_usage_bytes": "200063"
+}

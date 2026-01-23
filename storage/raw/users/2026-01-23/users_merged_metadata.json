@@ -1,0 +1,30 @@
+{
+  "source": "users",
+  "data_type": "raw",
+  "timestamp": "2026-01-23T16:20:28.270500",
+  "file_path": "storage\\raw\\users\\2026-01-23\\users_merged.parquet",
+  "file_size_bytes": 9495,
+  "record_count": 927,
+  "schema": {
+    "columns": [
+      "user_id",
+      "age",
+      "gender",
+      "device"
+    ],
+    "dtypes": {
+      "user_id": "int32",
+      "age": "float64",
+      "gender": "object",
+      "device": "object"
+    }
+  },
+  "checksum_md5": "ca76c8c5dec16e7feebadbabc75840e0",
+  "null_counts": {
+    "user_id": 0,
+    "age": 13,
+    "gender": 8,
+    "device": 20
+  },
+  "memory_usage_bytes": "108078"
+}
