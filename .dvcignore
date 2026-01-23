@@ -1,0 +1,19 @@
+# Exclude typical patterns
+*.pyc
+__pycache__/
+.ipynb_checkpoints/
+*.egg-info/
+
+# Exclude logs and temporary files
+*.log
+*.tmp
+*.cache
+
+# Exclude IDE files
+.vscode/
+.idea/
+*.swp
+
+# Exclude OS files
+.DS_Store
+Thumbs.db

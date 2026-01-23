@@ -1,0 +1,53 @@
+stages:
+  ingest:
+    cmd: python src/ingestion/run_all_ingestion.py
+    deps:
+      - data/users1.csv
+      - data/users2.csv
+      - data/products.json
+      - data/transactions.csv
+      - src/ingestion/
+    outs:
+      - storage/raw/
+
+  validate:
+    cmd: python src/validation/validate_data.py
+    deps:
+      - storage/raw/
+      - src/validation/
+    outs:
+      - reports/validation_results_*.json
+
+  prepare:
+    cmd: python src/preparation/clean_data.py
+    deps:
+      - storage/raw/
+      - src/preparation/
+    outs:
+      - storage/prepared/
+
+  engineer_features:
+    cmd: python src/features/engineer_features.py
+    deps:
+      - storage/prepared/
+      - src/features/
+    outs:
+      - storage/features/
+
+  setup_feature_store:
+    cmd: python src/features/feature_store.py
+    deps:
+      - storage/features/
+    outs:
+      - feature_store.db
+
+  train_model:
+    cmd: python src/models/collaborative_filtering.py
+    deps:
+      - storage/features/
+      - src/models/
+    outs:
+      - models/collaborative_filtering.pkl
+    metrics:
+      - metrics/model_metrics.json:
+          cache: false

@@ -1,0 +1,69 @@
+# ============================================
+# RecoMart Data Pipeline - Dependencies
+# ============================================
+
+# Core Data Processing
+pandas
+numpy<2.0
+scipy
+
+# Data Validation & Quality
+great-expectations  
+pydantic
+
+# Database & Storage
+sqlalchemy
+psycopg2-binary
+pyarrow
+
+# Feature Store
+feast
+
+# Data Versioning
+dvc
+
+# Machine Learning
+scikit-learn
+scikit-surprise
+mlflow
+
+# Orchestration
+apache-airflow
+
+# Visualization & Plotting
+matplotlib
+seaborn
+plotly
+
+# Jupyter & Notebooks
+jupyter
+ipykernel
+notebook
+
+# PDF Reporting
+reportlab
+fpdf2
+
+# Utilities
+python-dateutil
+pytz
+requests
+python-dotenv
+
+# Logging & Configuration
+colorama
+pyyaml
+
+# Testing
+pytest
+pytest-cov
+
+# Streaming (Kafka)
+kafka-python
+confluent-kafka
+
+# Additional Tools
+pyodbc
+fastapi
+uvicorn
+streamlit
