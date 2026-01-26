@@ -1,8 +1,8 @@
 """
 Transaction data ingestion module
 
-Ingests transaction data from CSV, parses timestamps, validates interactions,
-and stores in partitioned raw storage with metadata tracking.
+Ingests transaction data from CSV files containing "transaction" in the name,
+parses timestamps, validates interactions, and stores in partitioned raw storage.
 """
 
 import os
@@ -10,7 +10,7 @@ import sys
 import pandas as pd
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -22,7 +22,7 @@ logger = get_logger(__name__)
 
 
 class TransactionDataIngestion:
-    """Handles ingestion of transaction/interaction data from CSV source"""
+    """Handles ingestion of transaction/interaction data from CSV sources"""
     
     def __init__(self, data_dir: str = 'data', storage_base: str = 'storage'):
         """
@@ -34,43 +34,73 @@ class TransactionDataIngestion:
         """
         self.data_dir = Path(data_dir)
         self.storage = DataLakeStorage(storage_base)
-        self.transaction_file = 'transactions.csv'
+        self.transaction_files = self.discover_source_files()
         logger.info(f"Initialized TransactionDataIngestion with data_dir={data_dir}")
-    
-    def validate_source_file(self) -> bool:
+
+    def discover_source_files(self) -> List[str]:
         """
-        Validate that source file exists and is accessible
+        Discover CSV files containing 'transaction' in the name
         
         Returns:
-            True if file exists, raises exception otherwise
+            List of filenames
         """
-        file_path = self.data_dir / self.transaction_file
+        if not self.data_dir.exists():
+            logger.warning(f"Data directory {self.data_dir} does not exist")
+            return []
+            
+        discovered = [
+            f.name for f in self.data_dir.glob("*.csv") 
+            if "transaction" in f.name.lower()
+        ]
         
-        if not file_path.exists():
-            logger.error(f"✗ Missing {self.transaction_file}")
-            raise FileNotFoundError(f"Transaction file not found: {file_path}")
-        
-        file_size = os.path.getsize(file_path)
-        logger.info(f" Found {self.transaction_file} ({file_size:,} bytes)")
-        
-        return True
+        if discovered:
+            logger.info(f" Discovered {len(discovered)} transaction data files: {discovered}")
+        else:
+            logger.warning(" No files containing 'transaction' found in data directory")
+            
+        return discovered
     
-    def read_transaction_csv(self) -> pd.DataFrame:
+    def validate_source_files(self) -> Dict[str, bool]:
         """
-        Read transaction CSV file with error handling
+        Validate that source files exist and are accessible
+        
+        Returns:
+            Dictionary mapping filename to existence status
+        """
+        validation_results = {}
+        
+        if not self.transaction_files:
+            logger.error("No transaction files discovered to validate")
+            return {}
+
+        for filename in self.transaction_files:
+            file_path = self.data_dir / filename
+            exists = file_path.exists()
+            validation_results[filename] = exists
+            
+            if exists:
+                file_size = os.path.getsize(file_path)
+                logger.info(f" Found {filename} ({file_size:,} bytes)")
+            else:
+                logger.error(f"✗ Missing {filename}")
+        
+        return validation_results
+    
+    def read_transaction_csv(self, filename: str) -> pd.DataFrame:
+        """
+        Read a single transaction CSV file with error handling
+        
+        Args:
+            filename: Name of CSV file to read
         
         Returns:
             DataFrame with transaction data
         """
-        file_path = self.data_dir / self.transaction_file
+        file_path = self.data_dir / filename
         
         try:
-            # Read CSV with timestamp parsing
             df = pd.read_csv(file_path)
-            
-            logger.info(f"Read {len(df)} transactions from CSV")
-            logger.debug(f"Columns: {df.columns.tolist()}")
-            
+            logger.info(f"Read {len(df)} transactions from {filename}")
             return df
         
         except FileNotFoundError:
@@ -82,130 +112,90 @@ class TransactionDataIngestion:
             raise
         
         except Exception as e:
-            logger.error(f"Error reading {self.transaction_file}: {str(e)}")
+            logger.error(f"Error reading {filename}: {str(e)}")
             raise
     
+    def merge_transaction_data(self, dfs: List[pd.DataFrame]) -> pd.DataFrame:
+        """Merge multiple transaction dataframes"""
+        if not dfs:
+            return pd.DataFrame()
+        return pd.concat(dfs, ignore_index=True)
+
     def parse_timestamps(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Parse timestamp column to datetime
-        
-        Args:
-            df: Transaction DataFrame
-        
-        Returns:
-            DataFrame with parsed timestamps
-        """
-        logger.info("Parsing timestamps...")
-        
+        """Parse timestamp column to datetime"""
         if 'timestamp' in df.columns:
             try:
-                df['timestamp'] = pd.to_datetime(df['timestamp'])
-                logger.info(f" Parsed timestamps successfully")
-                
-                # Log time range
-                min_time = df['timestamp'].min()
-                max_time = df['timestamp'].max()
-                logger.info(f"  Time range: {min_time} to {max_time}")
-                
+                df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+                logger.info(" Parsed timestamps successfully")
             except Exception as e:
                 logger.error(f"Error parsing timestamps: {str(e)}")
-                raise
-        else:
-            logger.warning("No 'timestamp' column found")
-        
         return df
     
     def validate_transaction_data(self, df: pd.DataFrame) -> None:
-        """
-        Perform validation on transaction data
+        """Perform basic validation on transaction data"""
+        if df.empty: return
         
-        Args:
-            df: Transaction DataFrame to validate
-        """
-        logger.info("Validating transaction data...")
-        
-        # Expected columns
         expected_columns = {'user_id', 'item_id', 'view_mode', 'rating', 'timestamp'}
         missing_columns = expected_columns - set(df.columns)
         
         if missing_columns:
             logger.warning(f"Missing expected columns: {missing_columns}")
         
-        # Validate view_mode values
         if 'view_mode' in df.columns:
             valid_modes = {'view', 'add_to_cart', 'purchase'}
             actual_modes = set(df['view_mode'].unique())
             invalid_modes = actual_modes - valid_modes
-            
             if invalid_modes:
                 logger.warning(f"Found invalid view_mode values: {invalid_modes}")
-            
-            # Log distribution
-            mode_dist = df['view_mode'].value_counts()
-            logger.info(f"Interaction distribution:\n{mode_dist}")
-        
-        # Validate rating range
-        if 'rating' in df.columns:
-            min_rating = df['rating'].min()
-            max_rating = df['rating'].max()
-            
-            if min_rating < 1 or max_rating > 5:
-                logger.warning(f"Ratings outside expected range [1-5]: min={min_rating}, max={max_rating}")
-        
-        # Check for nulls
-        null_counts = df.isnull().sum()
-        if null_counts.sum() > 0:
-            logger.info(f"Null value counts:\n{null_counts[null_counts > 0]}")
         
         logger.info(" Validation complete")
     
     def ingest(self) -> Dict[str, Any]:
-        """
-        Execute complete transaction data ingestion pipeline
-        
-        Returns:
-            Metadata dictionary from storage operation
-        """
+        """Execute complete transaction data ingestion pipeline"""
         logger.info("=" * 60)
-        logger.info("Starting Transaction Data Ingestion")
+        logger.info("Starting Transaction Data Ingestion (Dynamic)")
         logger.info("=" * 60)
         
         start_time = datetime.now()
         
-        # Step 1: Validate source file
-        logger.info("Step 1: Validating source file...")
-        self.validate_source_file()
+        # Step 1: Validate source files
+        self.validate_source_files()
         
-        # Step 2: Read CSV data
-        logger.info("Step 2: Reading transaction CSV...")
-        df = self.read_transaction_csv()
+        if not self.transaction_files:
+            logger.warning("No transaction files found to ingest")
+            return {'record_count': 0, 'file_path': 'None', 'file_size_bytes': 0}
+
+        # Step 2: Read all files
+        dfs = []
+        for filename in self.transaction_files:
+            dfs.append(self.read_transaction_csv(filename))
+            
+        # Step 3: Merge
+        df = self.merge_transaction_data(dfs)
         
-        # Step 3: Parse timestamps
-        logger.info("Step 3: Parsing timestamps...")
+        if df.empty:
+            logger.warning("No transaction data were processed")
+            return {'record_count': 0, 'file_path': 'None', 'file_size_bytes': 0}
+
+        # Step 4: Parse & Validate
         df = self.parse_timestamps(df)
-        
-        # Step 4: Validate data
-        logger.info("Step 4: Validating transaction data...")
         self.validate_transaction_data(df)
         
-        # Step 5: Store in data lake
-        logger.info("Step 5: Storing in partitioned data lake...")
+        # Step 5: Store
         metadata = self.storage.save_dataframe(
             df=df,
             source='transactions',
             data_type='raw',
-            filename='transactions',
+            filename='transactions_merged',
             format='parquet'
         )
         
-        # Calculate execution time
         end_time = datetime.now()
         execution_time = (end_time - start_time).total_seconds()
         
         logger.info("=" * 60)
         logger.info(f" Transaction ingestion completed in {execution_time:.2f} seconds")
         logger.info(f"  Records ingested: {metadata['record_count']:,}")
-        logger.info(f"  File size: {metadata['file_size_bytes']:,} bytes")
         logger.info(f"  Storage path: {metadata['file_path']}")
         logger.info("=" * 60)
         

@@ -1,7 +1,7 @@
 """
 User data ingestion module
 
-Ingests user data from CSV files (users1.csv and users2.csv),
+Ingests user data from CSV files containing "user" in the name,
 merges them, and stores in partitioned raw storage with metadata tracking.
 """
 
@@ -34,8 +34,31 @@ class UserDataIngestion:
         """
         self.data_dir = Path(data_dir)
         self.storage = DataLakeStorage(storage_base)
-        self.user_files = ['users1.csv', 'users2.csv']
+        self.user_files = self.discover_source_files()
         logger.info(f"Initialized UserDataIngestion with data_dir={data_dir}")
+
+    def discover_source_files(self) -> List[str]:
+        """
+        Discover CSV files containing 'user' in the name
+        
+        Returns:
+            List of filenames
+        """
+        if not self.data_dir.exists():
+            logger.warning(f"Data directory {self.data_dir} does not exist")
+            return []
+            
+        discovered = [
+            f.name for f in self.data_dir.glob("*.csv") 
+            if "user" in f.name.lower()
+        ]
+        
+        if discovered:
+            logger.info(f" Discovered {len(discovered)} user data files: {discovered}")
+        else:
+            logger.warning(" No files containing 'user' found in data directory")
+            
+        return discovered
     
     def validate_source_files(self) -> Dict[str, bool]:
         """
@@ -46,6 +69,10 @@ class UserDataIngestion:
         """
         validation_results = {}
         
+        if not self.user_files:
+            logger.error("No user files discovered to validate")
+            return {}
+
         for filename in self.user_files:
             file_path = self.data_dir / filename
             exists = file_path.exists()
@@ -99,6 +126,9 @@ class UserDataIngestion:
         Returns:
             Combined DataFrame
         """
+        if not dfs:
+            return pd.DataFrame()
+
         logger.info(f"Merging {len(dfs)} user dataframes")
         
         # Concatenate all dataframes
@@ -115,10 +145,6 @@ class UserDataIngestion:
         # Clean age: Force to numeric, handle errors
         if 'age' in merged_df.columns:
             merged_df['age'] = pd.to_numeric(merged_df['age'], errors='coerce')
-            # Fill NaN age with median or -1? For raw layer, keeping as float with NaN is better,
-            # but for Parquet compatibility with int columns, nullable INT64 is preferred if supported.
-            # Here we'll leave as float to support NaNs or fill with -1 if strict int needed.
-            # Let's keep as float for now to preserve missing info
             pass
 
         # Clean string columns
@@ -129,9 +155,10 @@ class UserDataIngestion:
                 merged_df.loc[merged_df[col].str.lower() == 'nan', col] = None
         
         # Log any duplicates found
-        duplicate_count = merged_df.duplicated(subset=['user_id']).sum()
-        if duplicate_count > 0:
-            logger.warning(f"Found {duplicate_count} duplicate user_ids in merged data")
+        if 'user_id' in merged_df.columns:
+            duplicate_count = merged_df.duplicated(subset=['user_id']).sum()
+            if duplicate_count > 0:
+                logger.warning(f"Found {duplicate_count} duplicate user_ids in merged data")
         
         return merged_df
     
@@ -143,15 +170,19 @@ class UserDataIngestion:
             Metadata dictionary from storage operation
         """
         logger.info("=" * 60)
-        logger.info("Starting User Data Ingestion")
+        logger.info("Starting User Data Ingestion (Dynamic)")
         logger.info("=" * 60)
         
         start_time = datetime.now()
         
         # Step 1: Validate source files
-        logger.info("Step 1: Validating source files...")
+        logger.info("Step 1: Validating discovered source files...")
         validation_results = self.validate_source_files()
         
+        if not validation_results:
+            logger.warning("No user files found to ingest")
+            return {'record_count': 0, 'file_path': 'None', 'file_size_bytes': 0}
+
         if not all(validation_results.values()):
             missing_files = [f for f, exists in validation_results.items() if not exists]
             raise FileNotFoundError(f"Missing required files: {missing_files}")
@@ -172,6 +203,10 @@ class UserDataIngestion:
         logger.info("Step 3: Merging user datasets...")
         merged_users = self.merge_user_data(user_dfs)
         
+        if merged_users.empty:
+            logger.warning("No user data were processed (Empty result)")
+            return {'record_count': 0, 'file_path': 'None', 'file_size_bytes': 0}
+
         # Step 4: Store in data lake
         logger.info("Step 4: Storing in partitioned data lake...")
         metadata = self.storage.save_dataframe(

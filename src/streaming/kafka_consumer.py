@@ -1,12 +1,7 @@
-"""
-Kafka Consumer for Real-time Transaction Processing
-
-Consumes transaction events from Kafka, processes them, and stores in data lake.
-Enables near real-time feature updates and model serving.
-"""
-
+# Kafka Consumer for Real-time Transaction Processing
 import sys
 import json
+import requests
 import pandas as pd
 from datetime import datetime
 from pathlib import Path
@@ -22,145 +17,82 @@ logger = get_logger(__name__)
 
 
 class TransactionConsumer:
-    """Kafka consumer for transaction streaming"""
+    """Kafka consumer for dual-stream (users and transactions)"""
     
     def __init__(
         self,
         bootstrap_servers: str = 'localhost:9092',
-        topic: str = 'recomart-transactions',
-        group_id: str = 'recomart-consumer-group'
+        group_id: str = 'recomart-consumer-group',
+        api_base_url: str = 'http://localhost:8000'
     ):
         """
         Initialize Kafka consumer
         
         Args:
             bootstrap_servers: Kafka broker address
-            topic: Kafka topic to consume from
             group_id: Consumer group ID
         """
-        self.topic = topic
+        self.topics = ['recomart-users', 'recomart-transactions']
+        self.api_base_url = api_base_url
         self.storage = DataLakeStorage()
-        self.buffer = []
-        self.buffer_size = 100  # Batch size for storage
         
         self.consumer = KafkaConsumer(
-            topic,
+            *self.topics,
             bootstrap_servers=bootstrap_servers,
             group_id=group_id,
             value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-            auto_offset_reset='earliest',
+            auto_offset_reset='latest',
             enable_auto_commit=True
         )
         
-        logger.info(f"Initialized Kafka consumer for topic '{topic}', group '{group_id}'")
+        logger.info(f"Initialized Kafka consumer for topics {self.topics}")
     
-    def process_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Process individual event
+    def forward_to_api(self, event: Dict[str, Any], topic: str):
+        """Forward event to internal API endpoint"""
+        endpoint = ""
+        if topic == 'recomart-users':
+            endpoint = "/internal/ingest-user"
+        elif topic == 'recomart-transactions':
+            endpoint = "/internal/ingest-transaction"
         
-        Args:
-            event: Transaction event
-            
-        Returns:
-            Processed event
-        """
-        # Add processing timestamp
-        event['processed_at'] = datetime.now().isoformat()
-        
-        # Convert timestamp to datetime
-        if 'timestamp' in event:
-            event['timestamp'] = pd.to_datetime(event['timestamp'])
-        
-        # Add implicit score
-        view_mode_scores = {'view': 1, 'add_to_cart': 2, 'purchase': 3}
-        event['implicit_score'] = view_mode_scores.get(event['view_mode'], 1)
-        
-        logger.debug(f"Processed event {event['event_id']}")
-        return event
-    
-    def add_to_buffer(self, event: Dict[str, Any]):
-        """Add processed event to buffer"""
-        self.buffer.append(event)
-        
-        # Flush buffer if full
-        if len(self.buffer) >= self.buffer_size:
-            self.flush_buffer()
-    
-    def flush_buffer(self):
-        """Flush buffer to storage"""
-        if not self.buffer:
+        if not endpoint:
             return
-        
-        logger.info(f"Flushing {len(self.buffer)} events to storage...")
-        
-        # Convert to DataFrame
-        df = pd.DataFrame(self.buffer)
-        
-        # Save to data lake (streaming layer)
-        self.storage.save_dataframe(
-            df=df,
-            source='transactions',
-            data_type='streaming',
-            filename=f'transactions_stream_{datetime.now().strftime("%Y%m%d_%H%M%S")}',
-            format='parquet'
-        )
-        
-        logger.info(f" Flushed {len(self.buffer)} events to storage")
-        
-        # Clear buffer
-        self.buffer = []
-    
-    def consume_stream(self, max_messages: int = None, timeout_ms: int = 1000):
-        """
-        Consume messages from Kafka topic
-        
-        Args:
-            max_messages: Maximum number of messages to consume (None = infinite)
-            timeout_ms: Consumer poll timeout
-        """
+
+        url = f"{self.api_base_url}{endpoint}"
+        try:
+            response = requests.post(url, json=event, timeout=5)
+            if response.status_code == 200:
+                logger.info(f"Forwarded {topic} event to API successfully")
+            else:
+                logger.error(f"Failed to forward {topic} event. API Status: {response.status_code}")
+        except Exception as e:
+            logger.error(f"Error calling internal API: {str(e)}")
+
+    def consume_stream(self):
+        """Consume messages and forward to API"""
         logger.info("=" * 60)
-        logger.info("Starting Kafka Consumer")
+        logger.info("Starting Dual-Stream Kafka Consumer")
         logger.info("=" * 60)
-        
-        message_count = 0
         
         try:
             for message in self.consumer:
-                # Process event
-                event = self.process_event(message.value)
+                topic = message.topic
+                event = message.value
+                logger.info(f"Consumed message from {topic}")
                 
-                # Add to buffer
-                self.add_to_buffer(event)
+                # Forward to API
+                self.forward_to_api(event, topic)
                 
-                message_count += 1
+                # Also optionally archive to data lake (streaming layer)
+                # (Removing buffer logic for simplicity/direct streaming as requested)
                 
-                # Log progress
-                if message_count % 10 == 0:
-                    logger.info(f"Consumed {message_count} messages")
-                
-                # Check max messages
-                if max_messages and message_count >= max_messages:
-                    logger.info(f"Reached max messages limit: {max_messages}")
-                    break
-            
-            # Flush any remaining events
-            self.flush_buffer()
-            
-            logger.info("=" * 60)
-            logger.info(f" Consumed {message_count} total messages")
-            logger.info("=" * 60)
-            
         except KeyboardInterrupt:
             logger.info("Consumer interrupted by user")
-            self.flush_buffer()
-        
         except Exception as e:
             logger.error(f"Consumer error: {str(e)}", exc_info=True)
-            self.flush_buffer()
     
     def close(self):
         """Close consumer connection"""
-        self.flush_buffer()
         self.consumer.close()
         logger.info("Kafka consumer closed")
 
@@ -168,19 +100,10 @@ class TransactionConsumer:
 def main():
     """Main execution"""
     try:
-        logger.info("Starting transaction consumer...")
-        
-        # Initialize consumer
         consumer = TransactionConsumer()
-        
-        # Consume messages (limit for testing)
-        consumer.consume_stream(max_messages=50)
-        
-        # Close
+        consumer.consume_stream()
         consumer.close()
-        
         return 0
-    
     except Exception as e:
         logger.critical(f"Consumer failed: {str(e)}", exc_info=True)
         return 1
