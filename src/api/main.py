@@ -1,3 +1,4 @@
+# Run from project root: uvicorn src.api.main:app --reload
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pathlib import Path
 import csv
