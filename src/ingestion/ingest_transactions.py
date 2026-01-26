@@ -51,7 +51,7 @@ class TransactionDataIngestion:
             raise FileNotFoundError(f"Transaction file not found: {file_path}")
         
         file_size = os.path.getsize(file_path)
-        logger.info(f"✓ Found {self.transaction_file} ({file_size:,} bytes)")
+        logger.info(f" Found {self.transaction_file} ({file_size:,} bytes)")
         
         return True
     
@@ -100,7 +100,7 @@ class TransactionDataIngestion:
         if 'timestamp' in df.columns:
             try:
                 df['timestamp'] = pd.to_datetime(df['timestamp'])
-                logger.info(f"✓ Parsed timestamps successfully")
+                logger.info(f" Parsed timestamps successfully")
                 
                 # Log time range
                 min_time = df['timestamp'].min()
@@ -157,7 +157,7 @@ class TransactionDataIngestion:
         if null_counts.sum() > 0:
             logger.info(f"Null value counts:\n{null_counts[null_counts > 0]}")
         
-        logger.info("✓ Validation complete")
+        logger.info(" Validation complete")
     
     def ingest(self) -> Dict[str, Any]:
         """
@@ -203,7 +203,7 @@ class TransactionDataIngestion:
         execution_time = (end_time - start_time).total_seconds()
         
         logger.info("=" * 60)
-        logger.info(f"✓ Transaction ingestion completed in {execution_time:.2f} seconds")
+        logger.info(f" Transaction ingestion completed in {execution_time:.2f} seconds")
         logger.info(f"  Records ingested: {metadata['record_count']:,}")
         logger.info(f"  File size: {metadata['file_size_bytes']:,} bytes")
         logger.info(f"  Storage path: {metadata['file_path']}")
@@ -218,7 +218,7 @@ def main():
         ingestion = TransactionDataIngestion()
         metadata = ingestion.ingest()
         
-        print("\n✓ Transaction data ingestion successful!")
+        print("\n Transaction data ingestion successful!")
         print(f"Records: {metadata['record_count']:,}")
         print(f"Location: {metadata['file_path']}")
         

@@ -1,0 +1,7 @@
+{
+    "data_dir": "data",
+    "storage_base": "storage",
+    "products_file": "products.json",
+    "interactions_file": "interactions.json",
+    "users_file": "users.json"
+    }

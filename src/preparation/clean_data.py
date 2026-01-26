@@ -87,7 +87,7 @@ class DataPreparation:
             self.scalers['age'] = age_scaler
             logger.info(f"  Normalized age to [0, 1] range")
         
-        logger.info(f"✓ User data cleaned: {len(df_clean)} records")
+        logger.info(f" User data cleaned: {len(df_clean)} records")
         return df_clean
     
     def clean_products(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -142,7 +142,7 @@ class DataPreparation:
             df_clean['price_tier'] = pd.qcut(df_clean['price'], q=3, labels=['low', 'medium', 'high'], duplicates='drop')
             logger.info(f"  Created price tiers: {df_clean['price_tier'].value_counts().to_dict()}")
         
-        logger.info(f"✓ Product data cleaned: {len(df_clean)} records")
+        logger.info(f" Product data cleaned: {len(df_clean)} records")
         return df_clean
     
     def clean_transactions(self, df: pd.DataFrame, users_df: pd.DataFrame, products_df: pd.DataFrame) -> pd.DataFrame:
@@ -184,7 +184,7 @@ class DataPreparation:
             df_clean['implicit_score'] = df_clean['view_mode'].map(view_mode_scores)
             logger.info(f"  Created implicit scores: {df_clean['implicit_score'].value_counts().to_dict()}")
         
-        logger.info(f"✓ Transaction data cleaned: {len(df_clean)} records")
+        logger.info(f" Transaction data cleaned: {len(df_clean)} records")
         return df_clean
     
     def run_preparation_pipeline(self) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -211,7 +211,7 @@ class DataPreparation:
         self.storage.save_dataframe(transactions_clean, 'transactions', 'prepared', 'transactions_clean')
         
         logger.info("=" * 60)
-        logger.info("✓ Data preparation complete")
+        logger.info(" Data preparation complete")
         logger.info("=" * 60)
         
         return users_clean, products_clean, transactions_clean
@@ -223,7 +223,7 @@ def main():
         prep = DataPreparation()
         users, products, transactions = prep.run_preparation_pipeline()
         
-        print(f"\n✓ Data preparation successful!")
+        print(f"\n Data preparation successful!")
         print(f"Users: {len(users):,} records")
         print(f"Products: {len(products):,} records")
         print(f"Transactions: {len(transactions):,} records")

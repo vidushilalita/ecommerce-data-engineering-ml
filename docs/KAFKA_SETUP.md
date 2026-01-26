@@ -40,45 +40,73 @@ java -version
 
 ### 3. Configure Kafka
 
-Edit `config/server.properties`:
+Edit `config/kraft/server.properties`:
 
 ```properties
 # Kafka broker configuration
-broker.id=0
-listeners=PLAINTEXT://localhost:9092
-log.dirs=C:/kafka/kafka-logs
-num.partitions=3
-offsets.topic.replication.factor=1
+node.id=1
+process.roles=broker,controller
+inter.broker.listener.name=PLAINTEXT
+controller.listener.names=CONTROLLER
+listeners=PLAINTEXT://localhost:9092,CONTROLLER://localhost:9093
+controller.quorum.voters=1@localhost:9093
+
+# Log directory (Use forward slashes even on Windows)
+# Windows Example: C:/kafka/kafka-logs
+# Linux/Mac Example: /tmp/kafka-logs
+log.dirs=/tmp/kafka-logs
 ```
 
 ---
 
-## Running Kafka
+## Running Kafka (KRaft Mode)
 
-### 1. Start Zookeeper (Terminal 1)
+### 1. Generate Cluster ID
 
+**Windows (PowerShell)**:
 ```powershell
-# Navigate to Kafka directory
 cd C:\kafka
-
-# Start Zookeeper
-.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+.\bin\windows\kafka-storage.bat random-uuid
+# Copy the output UUID (e.g., 87x547845-x8457)
 ```
 
-### 2. Start Kafka Broker (Terminal 2)
-
-```powershell
-# Navigate to Kafka directory
-cd C:\kafka
-
-# Start Kafka server
-.\bin\windows\kafka-server-start.bat .\config\server.properties
+**Linux / Mac**:
+```bash
+cd /usr/local/kafka
+./bin/kafka-storage.sh random-uuid
+# Copy the output UUID
 ```
 
-### 3. Create Topic (Terminal 3)
+### 2. Format Log Directories
 
+Replace `<CLUSTER_ID>` with the UUID generated in step 1.
+
+**Windows**:
 ```powershell
-# Create recomart-transactions topic
+.\bin\windows\kafka-storage.bat format -t <CLUSTER_ID> -c .\config\kraft\server.properties
+```
+
+**Linux / Mac**:
+```bash
+./bin/kafka-storage.sh format -t <CLUSTER_ID> -c config/kraft/server.properties
+```
+
+### 3. Start Kafka Server
+
+**Windows (Terminal 1)**:
+```powershell
+.\bin\windows\kafka-server-start.bat .\config\kraft\server.properties
+```
+
+**Linux / Mac (Terminal 1)**:
+```bash
+./bin/kafka-server-start.sh config/kraft/server.properties
+```
+
+### 4. Create Topic (Terminal 2)
+
+**Windows**:
+```powershell
 .\bin\windows\kafka-topics.bat --create `
     --topic recomart-transactions `
     --bootstrap-server localhost:9092 `
@@ -86,48 +114,108 @@ cd C:\kafka
     --replication-factor 1
 ```
 
-### 4. Verify Topic
+**Linux / Mac**:
+```bash
+./bin/kafka-topics.sh --create \
+    --topic recomart-transactions \
+    --bootstrap-server localhost:9092 \
+    --partitions 3 \
+    --replication-factor 1
+```
 
+### 5. Verify Topic
+
+**Windows**:
 ```powershell
 # List topics
 .\bin\windows\kafka-topics.bat --list --bootstrap-server localhost:9092
 
 # Describe topic
-.\bin\windows\kafka-topics.bat --describe `
-    --topic recomart-transactions `
-    --bootstrap-server localhost:9092
+.\bin\windows\kafka-topics.bat --describe --topic recomart-transactions --bootstrap-server localhost:9092
+```
+
+**Linux / Mac**:
+```bash
+# List topics
+./bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+# Describe topic
+./bin/kafka-topics.sh --describe --topic recomart-transactions --bootstrap-server localhost:9092
 ```
 
 ---
 
 ## Usage
 
-### Start Producer (Terminal 4)
+### Start Producer (Terminal 3)
 
+**Windows**:
 ```powershell
-# Navigate to project
 cd C:\Users\Vidushi.Bisht\Documents\ecommerce-data-engineering-ml
-
-# Activate virtual environment
 .\venv\Scripts\Activate.ps1
-
-# Run producer
 python src/streaming/kafka_producer.py
 ```
 
-**Output**: Streams simulated transaction events to Kafka
+**Linux / Mac**:
+```bash
+cd ~/ecommerce-data-engineering-ml
+source venv/bin/activate
+python src/streaming/kafka_producer.py
+```
 
-### Start Consumer (Terminal 5)
+### Start Consumer (Terminal 4)
 
+**Windows**:
 ```powershell
-# In another terminal (same project directory)
 .\venv\Scripts\Activate.ps1
-
-# Run consumer
 python src/streaming/kafka_consumer.py
 ```
 
-**Output**: Consumes events and stores in `storage/streaming/transactions/`
+**Linux / Mac**:
+```bash
+source venv/bin/activate
+python src/streaming/kafka_consumer.py
+```
+
+---
+
+## Monitoring
+
+### Kafka Console Consumer
+
+**Windows**:
+```powershell
+.\bin\windows\kafka-console-consumer.bat --topic recomart-transactions --bootstrap-server localhost:9092 --from-beginning
+```
+
+**Linux / Mac**:
+```bash
+./bin/kafka-console-consumer.sh --topic recomart-transactions --bootstrap-server localhost:9092 --from-beginning
+```
+
+### Check Consumer Group Lag
+
+**Windows**:
+```powershell
+.\bin\windows\kafka-consumer-groups.bat --bootstrap-server localhost:9092 --describe --group recomart-consumer-group
+```
+
+**Linux / Mac**:
+```bash
+./bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group recomart-consumer-group
+```
+
+### View Logs
+
+**Windows**:
+```powershell
+Get-Content logs\src_streaming_kafka_consumer.log -Tail 50
+```
+
+**Linux / Mac**:
+```bash
+tail -f logs/src_streaming_kafka_consumer.log
+```
 
 ---
 
@@ -143,15 +231,6 @@ python src/streaming/kafka_consumer.py
 - Configurable event rate
 - Error handling and retries
 
-**Example**:
-```python
-from src.streaming.kafka_producer import TransactionProducer
-
-producer = TransactionProducer()
-producer.simulate_transaction_stream(num_events=100, delay_seconds=0.5)
-producer.close()
-```
-
 ### Consumer (`kafka_consumer.py`)
 
 **Purpose**: Process streaming transactions in real-time
@@ -163,15 +242,6 @@ producer.close()
 - Stores in data lake (streaming layer)
 - Auto-commit offsets
 
-**Example**:
-```python
-from src.streaming.kafka_consumer import TransactionConsumer
-
-consumer = TransactionConsumer()
-consumer.consume_stream(max_messages=100)
-consumer.close()
-```
-
 ---
 
 ## Integration with Pipeline
@@ -181,68 +251,11 @@ consumer.close()
 ```python
 # After consumer stores streaming data
 # Update feature store with new interactions
-
 from src.features.feature_store import SimpleFeatureStore
 from src.utils.storage import DataLakeStorage
-
-storage = DataLakeStorage()
-streaming_data = storage.load_latest('transactions', 'streaming')
-
-# Recompute features incrementally
-# Update feature store
+# ... logic to update features
 ```
 
-### Near Real-time Recommendations
-
-```python
-# Use latest features for real-time predictions
-
-from src.models.collaborative_filtering import CollaborativeFilteringModel
-
-model = CollaborativeFilteringModel()
-model.load_model('models/collaborative_filtering.pkl')
-
-# Generate recommendations for user
-recommendations = model.generate_recommendations(
-    user_id=123,
-    all_item_ids=item_ids,
-    top_k=10
-)
-```
-
----
-
-## Monitoring
-
-### Kafka Console Consumer
-
-Monitor events in real-time:
-
-```powershell
-.\bin\windows\kafka-console-consumer.bat `
-    --topic recomart-transactions `
-    --bootstrap-server localhost:9092 `
-    --from-beginning
-```
-
-### Check Consumer Group Lag
-
-```powershell
-.\bin\windows\kafka-consumer-groups.bat `
-    --bootstrap-server localhost:9092 `
-    --describe `
-    --group recomart-consumer-group
-```
-
-### View Logs
-
-```powershell
-# Kafka logs
-Get-Content C:\kafka\logs\server.log -Tail 50
-
-# Application logs
-Get-Content logs\src_streaming_kafka_consumer.log -Tail 50
-```
 
 ---
 
@@ -322,12 +335,14 @@ compression_type='gzip'
 
 ## Troubleshooting
 
-### Issue: Zookeeper won't start
-
+### Issue: Inconsistent Cluster ID
 **Solution**:
+If you receive `InconsistentClusterIdException`, it means the log directory was formatted with a different cluster ID than the one currently expected.
 ```powershell
-# Clean up Zookeeper data
-Remove-Item -Recurse -Force C:\kafka\zookeeper-data
+# Clean up log directory (WARNING: DELETES DATA)
+Remove-Item -Recurse -Force C:\tmp\kafka-logs
+# Re-format
+.\bin\windows\kafka-storage.bat format ...
 ```
 
 ### Issue: Topic not found
@@ -384,7 +399,7 @@ ecommerce-data-engineering-ml/
 
 ## Next Steps
 
-1. **Run the streaming pipeline**: Start Zookeeper, Kafka, Producer, Consumer
+1. **Run the streaming pipeline**: Start Kafka (KRaft), Producer, Consumer
 2. **Monitor events**: Use console consumer to verify flow
 3. **Integrate with features**: Update feature store in real-time
 4. **Deploy model serving**: Enable real-time recommendations

@@ -91,7 +91,7 @@ def run_complete_pipeline():
         logger.info("PIPELINE EXECUTION SUMMARY")
         logger.info("=" * 70)
         for step, result in results.items():
-            logger.info(f"✓ {step.upper()}: {result}")
+            logger.info(f" {step.upper()}: {result}")
         logger.info(f"\nTotal execution time: {total_time:.2f} minutes")
         logger.info("=" * 70)
         

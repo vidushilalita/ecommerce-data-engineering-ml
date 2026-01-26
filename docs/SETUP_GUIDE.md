@@ -26,11 +26,11 @@ python run_pipeline.py
 ```
 
 This will run all 5 stages:
-1. ✓ Data Ingestion
-2. ✓ Data Validation  
-3. ✓ Data Preparation
-4. ✓ Feature Engineering
-5. ✓ Model Training
+1.  Data Ingestion
+2.  Data Validation  
+3.  Data Preparation
+4.  Feature Engineering
+5.  Model Training
 
 ---
 
@@ -209,10 +209,10 @@ python -c "import sqlite3; conn = sqlite3.connect('feature_store.db'); print(con
 ### Validate Metrics
 
 Check that metrics meet targets:
-- ✓ Data Quality Score ≥ 95%
-- ✓ User features: ~927 records
-- ✓ Product features: ~101 records
-- ✓ Transaction features: ~3,001 records
+-  Data Quality Score ≥ 95%
+-  User features: ~927 records
+-  Product features: ~101 records
+-  Transaction features: ~3,001 records
 
 ---
 

@@ -90,7 +90,7 @@ class FeatureEngineer:
         # Merge with user demographics
         user_features_df = user_features_df.merge(users_df, on='user_id', how='left')
         
-        logger.info(f"✓ Created {len(user_features_df)} user feature records")
+        logger.info(f" Created {len(user_features_df)} user feature records")
         return user_features_df
     
     def create_item_features(self, transactions_df: pd.DataFrame, products_df: pd.DataFrame) -> pd.DataFrame:
@@ -129,7 +129,7 @@ class FeatureEngineer:
         item_features_df['avg_item_rating'].fillna(0, inplace=True)
         item_features_df['view_to_purchase_rate'].fillna(0, inplace=True)
         
-        logger.info(f"✓ Created {len(item_features_df)} item feature records")
+        logger.info(f" Created {len(item_features_df)} item feature records")
         return item_features_df
     
     def create_interaction_features(self, transactions_df: pd.DataFrame) -> pd.DataFrame:
@@ -170,7 +170,7 @@ class FeatureEngineer:
         else:
             interactions_df['user_item_affinity'] = interactions_df['implicit_score'] / 3.0
         
-        logger.info(f"✓ Created {len(interactions_df)} interaction feature records")
+        logger.info(f" Created {len(interactions_df)} interaction feature records")
         return interactions_df
     
     def run_feature_engineering(self) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -197,7 +197,7 @@ class FeatureEngineer:
         self.storage.save_dataframe(interaction_features, 'interaction_features', 'features', 'interaction_features')
         
         logger.info("=" * 60)
-        logger.info("✓ Feature engineering complete")
+        logger.info(" Feature engineering complete")
         logger.info("=" * 60)
         
         return user_features, item_features, interaction_features
@@ -209,7 +209,7 @@ def main():
         engineer = FeatureEngineer()
         user_features, item_features, interaction_features = engineer.run_feature_engineering()
         
-        print(f"\n✓ Feature engineering successful!")
+        print(f"\n Feature engineering successful!")
         print(f"User features: {len(user_features):,} records")
         print(f"Item features: {len(item_features):,} records")
         print(f"Interaction features: {len(interaction_features):,} records")

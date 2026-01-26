@@ -44,10 +44,23 @@ dag = DAG(
 )
 
 # Task functions
-def run_ingestion():
-    """Run data ingestion"""
-    from src.ingestion.run_all_ingestion import run_all_ingestion
-    return run_all_ingestion()
+def run_ingest_users():
+    """Run user data ingestion"""
+    from src.ingestion.ingest_users import UserDataIngestion
+    ingestion = UserDataIngestion()
+    return ingestion.ingest()
+
+def run_ingest_products():
+    """Run product data ingestion"""
+    from src.ingestion.ingest_products import ProductDataIngestion
+    ingestion = ProductDataIngestion()
+    return ingestion.ingest()
+
+def run_ingest_transactions():
+    """Run transaction data ingestion"""
+    from src.ingestion.ingest_transactions import TransactionDataIngestion
+    ingestion = TransactionDataIngestion()
+    return ingestion.ingest()
 
 def run_validation():
     """Run data validation"""
@@ -114,10 +127,28 @@ def run_model_training():
     
     return True
 
+def run_batch_inference():
+    """Run daily batch inference"""
+    from src.inference.batch_inference import BatchInference
+    inference = BatchInference()
+    return inference.run_inference()
+
 # Create tasks
-task_ingestion = PythonOperator(
-    task_id='data_ingestion',
-    python_callable=run_ingestion,
+task_ingest_users = PythonOperator(
+    task_id='ingest_users',
+    python_callable=run_ingest_users,
+    dag=dag,
+)
+
+task_ingest_products = PythonOperator(
+    task_id='ingest_products',
+    python_callable=run_ingest_products,
+    dag=dag,
+)
+
+task_ingest_transactions = PythonOperator(
+    task_id='ingest_transactions',
+    python_callable=run_ingest_transactions,
     dag=dag,
 )
 
@@ -151,5 +182,15 @@ task_model_training = PythonOperator(
     dag=dag,
 )
 
-# Define dependencies (linear pipeline)
-task_ingestion >> task_validation >> task_preparation >> task_feature_engineering >> task_feature_store >> task_model_training
+task_inference = PythonOperator(
+    task_id='batch_inference',
+    python_callable=run_batch_inference,
+    dag=dag,
+)
+
+# Define dependencies
+# 1. Parallel Ingestion -> Validation
+[task_ingest_users, task_ingest_products, task_ingest_transactions] >> task_validation
+
+# 2. Validation -> Prep -> FE -> Store -> Train -> Inference
+task_validation >> task_preparation >> task_feature_engineering >> task_feature_store >> task_model_training >> task_inference

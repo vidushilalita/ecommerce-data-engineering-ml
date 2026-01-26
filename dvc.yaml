@@ -1,19 +1,35 @@
 stages:
-  ingest:
-    cmd: python src/ingestion/run_all_ingestion.py
+  ingest_users:
+    cmd: python src/ingestion/ingest_users.py
     deps:
       - data/users1.csv
       - data/users2.csv
-      - data/products.json
-      - data/transactions.csv
-      - src/ingestion/
+      - src/ingestion/ingest_users.py
     outs:
-      - storage/raw/
+      - storage/raw/users/
+
+  ingest_products:
+    cmd: python src/ingestion/ingest_products.py
+    deps:
+      - data/products.json
+      - src/ingestion/ingest_products.py
+    outs:
+      - storage/raw/products/
+
+  ingest_transactions:
+    cmd: python src/ingestion/ingest_transactions.py
+    deps:
+      - data/transactions.csv
+      - src/ingestion/ingest_transactions.py
+    outs:
+      - storage/raw/transactions/
 
   validate:
     cmd: python src/validation/validate_data.py
     deps:
-      - storage/raw/
+      - storage/raw/users/
+      - storage/raw/products/
+      - storage/raw/transactions/
       - src/validation/
     outs:
       - reports/validation_results_*.json

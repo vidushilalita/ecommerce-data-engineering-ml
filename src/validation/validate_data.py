@@ -274,7 +274,7 @@ class DataValidator:
         }
         
         logger.info("=" * 60)
-        logger.info(f"✓ Overall Data Quality Score: {overall_score:.1%}")
+        logger.info(f" Overall Data Quality Score: {overall_score:.1%}")
         logger.info(f"  Passed: {passed_checks}/{total_checks} checks")
         logger.info("=" * 60)
         
@@ -301,7 +301,7 @@ def main():
         results = validator.run_validation_suite()
         output_file = validator.save_validation_results(results)
         
-        print(f"\n✓ Validation complete!")
+        print(f"\n Validation complete!")
         print(f"Overall Quality Score: {results['overall']['quality_score']:.1%}")
         print(f"Results saved to: {output_file}")
         

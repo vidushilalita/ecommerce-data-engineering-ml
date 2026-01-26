@@ -142,7 +142,7 @@ class RecommendationEvaluator:
                 'max': np.max(scores)
             }
         
-        logger.info("✓ Evaluation complete")
+        logger.info(" Evaluation complete")
         
         return averaged_results
     

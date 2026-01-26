@@ -53,7 +53,7 @@ class UserDataIngestion:
             
             if exists:
                 file_size = os.path.getsize(file_path)
-                logger.info(f"✓ Found {filename} ({file_size:,} bytes)")
+                logger.info(f" Found {filename} ({file_size:,} bytes)")
             else:
                 logger.error(f"✗ Missing {filename}")
         
@@ -187,7 +187,7 @@ class UserDataIngestion:
         execution_time = (end_time - start_time).total_seconds()
         
         logger.info("=" * 60)
-        logger.info(f"✓ User ingestion completed in {execution_time:.2f} seconds")
+        logger.info(f" User ingestion completed in {execution_time:.2f} seconds")
         logger.info(f"  Records ingested: {metadata['record_count']:,}")
         logger.info(f"  File size: {metadata['file_size_bytes']:,} bytes")
         logger.info(f"  Storage path: {metadata['file_path']}")
@@ -202,7 +202,7 @@ def main():
         ingestion = UserDataIngestion()
         metadata = ingestion.ingest()
         
-        print("\n✓ User data ingestion successful!")
+        print("\n User data ingestion successful!")
         print(f"Records: {metadata['record_count']:,}")
         print(f"Location: {metadata['file_path']}")
         

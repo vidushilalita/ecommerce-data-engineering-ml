@@ -21,11 +21,12 @@ from src.utils.storage import DataLakeStorage
 
 logger = get_logger(__name__)
 
+from src.config import config
 
 class ProductDataIngestion:
     """Handles ingestion of product data from JSON source"""
     
-    def __init__(self, data_dir: str = 'data', storage_base: str = 'storage'):
+    def __init__(self, data_dir: str = config['data_dir'], storage_base: str = config['storage_base']):
         """
         Initialize product data ingestion
         
@@ -35,7 +36,7 @@ class ProductDataIngestion:
         """
         self.data_dir = Path(data_dir)
         self.storage = DataLakeStorage(storage_base)
-        self.product_file = 'products.json'
+        self.product_file = config['products_file']
         logger.info(f"Initialized ProductDataIngestion with data_dir={data_dir}")
     
     def validate_source_file(self) -> bool:
@@ -52,7 +53,7 @@ class ProductDataIngestion:
             raise FileNotFoundError(f"Product file not found: {file_path}")
         
         file_size = os.path.getsize(file_path)
-        logger.info(f"✓ Found {self.product_file} ({file_size:,} bytes)")
+        logger.info(f" Found {self.product_file} ({file_size:,} bytes)")
         
         return True
     
@@ -138,7 +139,7 @@ class ProductDataIngestion:
             if duplicate_ids > 0:
                 logger.warning(f"Found {duplicate_ids} duplicate item_ids")
         
-        logger.info("✓ Validation complete")
+        logger.info(" Validation complete")
     
     def ingest(self) -> Dict[str, Any]:
         """
@@ -184,7 +185,7 @@ class ProductDataIngestion:
         execution_time = (end_time - start_time).total_seconds()
         
         logger.info("=" * 60)
-        logger.info(f"✓ Product ingestion completed in {execution_time:.2f} seconds")
+        logger.info(f" Product ingestion completed in {execution_time:.2f} seconds")
         logger.info(f"  Records ingested: {metadata['record_count']:,}")
         logger.info(f"  File size: {metadata['file_size_bytes']:,} bytes")
         logger.info(f"  Storage path: {metadata['file_path']}")
@@ -199,7 +200,7 @@ def main():
         ingestion = ProductDataIngestion()
         metadata = ingestion.ingest()
         
-        print("\n✓ Product data ingestion successful!")
+        print("\n Product data ingestion successful!")
         print(f"Records: {metadata['record_count']:,}")
         print(f"Location: {metadata['file_path']}")
         

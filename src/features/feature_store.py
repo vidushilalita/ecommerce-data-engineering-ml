@@ -89,7 +89,7 @@ class SimpleFeatureStore:
         ''')
         
         self.conn.commit()
-        logger.info("✓ Feature store tables created")
+        logger.info(" Feature store tables created")
     
     def register_user_features(self, user_features_df: pd.DataFrame):
         """Register user features"""
@@ -101,7 +101,7 @@ class SimpleFeatureStore:
         # Save to database
         user_features_df.to_sql('user_features', self.conn, if_exists='replace', index=False)
         
-        logger.info("✓ User features registered")
+        logger.info(" User features registered")
     
     def register_item_features(self, item_features_df: pd.DataFrame):
         """Register item features"""
@@ -113,7 +113,7 @@ class SimpleFeatureStore:
         # Save to database
         item_features_df.to_sql('item_features', self.conn, if_exists='replace', index=False)
         
-        logger.info("✓ Item features registered")
+        logger.info(" Item features registered")
     
     def register_feature_metadata(self, metadata: List[Dict]):
         """Register feature metadata"""
@@ -138,7 +138,7 @@ class SimpleFeatureStore:
             ))
         
         self.conn.commit()
-        logger.info("✓ Feature metadata registered")
+        logger.info(" Feature metadata registered")
     
     def get_user_features(self, user_ids: Optional[List[int]] = None) -> pd.DataFrame:
         """Retrieve user features"""
@@ -283,7 +283,7 @@ def main():
         feature_store.close()
         
         logger.info("=" * 60)
-        logger.info("✓ Feature store setup complete")
+        logger.info(" Feature store setup complete")
         logger.info(f"  Database: feature_store.db")
         logger.info(f"  User features: {len(user_features)} records")
         logger.info(f"  Item features: {len(item_features)} records")

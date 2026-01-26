@@ -1,8 +1,8 @@
 {
   "source": "users",
   "data_type": "raw",
-  "timestamp": "2026-01-23T16:20:28.270500",
-  "file_path": "storage\\raw\\users\\2026-01-23\\users_merged.parquet",
+  "timestamp": "2026-01-26T02:03:51.395291",
+  "file_path": "storage\\raw\\users\\2026-01-26\\users_merged.parquet",
   "file_size_bytes": 9495,
   "record_count": 927,
   "schema": {

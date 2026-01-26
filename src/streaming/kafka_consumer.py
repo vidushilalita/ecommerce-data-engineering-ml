@@ -105,7 +105,7 @@ class TransactionConsumer:
             format='parquet'
         )
         
-        logger.info(f"✓ Flushed {len(self.buffer)} events to storage")
+        logger.info(f" Flushed {len(self.buffer)} events to storage")
         
         # Clear buffer
         self.buffer = []
@@ -147,7 +147,7 @@ class TransactionConsumer:
             self.flush_buffer()
             
             logger.info("=" * 60)
-            logger.info(f"✓ Consumed {message_count} total messages")
+            logger.info(f" Consumed {message_count} total messages")
             logger.info("=" * 60)
             
         except KeyboardInterrupt:

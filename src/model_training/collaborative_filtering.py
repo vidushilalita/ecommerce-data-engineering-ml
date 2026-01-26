@@ -90,7 +90,7 @@ class CollaborativeFilteringModel:
         self.model.fit(trainset)
         self.trained = True
         
-        logger.info("✓ Model training complete")
+        logger.info(" Model training complete")
         
         return trainset, testset
     
@@ -180,7 +180,7 @@ def main():
             logger.info(f"  Item {rec['item_id']}: score={rec['predicted_score']:.3f}")
         
         logger.info("=" * 60)
-        logger.info("✓ Collaborative filtering training complete")
+        logger.info(" Collaborative filtering training complete")
         logger.info("=" * 60)
         
         return 0

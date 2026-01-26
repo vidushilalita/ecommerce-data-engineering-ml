@@ -162,7 +162,7 @@ def main():
         producer.close()
         
         logger.info("=" * 60)
-        logger.info("✓ Producer test complete")
+        logger.info(" Producer test complete")
         logger.info("=" * 60)
         
         return 0

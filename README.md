@@ -142,12 +142,12 @@ ecommerce-data-engineering-ml/
 
 ## 🎯 Success Criteria
 
-- ✓ Precision@10 ≥ 0.15
-- ✓ Recall@10 ≥ 0.10
-- ✓ NDCG@10 ≥ 0.20
-- ✓ Data Quality Score ≥ 95%
-- ✓ Pipeline Latency < 24 hours (batch)
-- ✓ Real-time processing < 1 second (streaming)
+-  Precision@10 ≥ 0.15
+-  Recall@10 ≥ 0.10
+-  NDCG@10 ≥ 0.20
+-  Data Quality Score ≥ 95%
+-  Pipeline Latency < 24 hours (batch)
+-  Real-time processing < 1 second (streaming)
 
 ## 🛠️ Tech Stack
 

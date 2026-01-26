@@ -1,0 +1,36 @@
+{
+  "source": "products",
+  "data_type": "raw",
+  "timestamp": "2026-01-25T22:41:17.752837",
+  "file_path": "storage\\raw\\products\\2026-01-25\\products.parquet",
+  "file_size_bytes": 5600,
+  "record_count": 101,
+  "schema": {
+    "columns": [
+      "item_id",
+      "price",
+      "brand",
+      "category",
+      "rating",
+      "in_stock"
+    ],
+    "dtypes": {
+      "item_id": "int64",
+      "price": "float64",
+      "brand": "object",
+      "category": "object",
+      "rating": "float64",
+      "in_stock": "bool"
+    }
+  },
+  "checksum_md5": "2fa9856ea040067d9c54232a855def31",
+  "null_counts": {
+    "item_id": 0,
+    "price": 0,
+    "brand": 0,
+    "category": 0,
+    "rating": 0,
+    "in_stock": 0
+  },
+  "memory_usage_bytes": "14099"
+}
