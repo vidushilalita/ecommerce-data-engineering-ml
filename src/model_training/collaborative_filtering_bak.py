@@ -11,13 +11,9 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, List, Tuple
 import pickle
-import mlflow
-import mlflow.sklearn
-from datetime import datetime
 
 from surprise import SVD, Dataset, Reader
 from surprise.model_selection import train_test_split
-from surprise import accuracy
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
@@ -40,12 +36,6 @@ class CollaborativeFilteringModel:
             lr_all: Learning rate
             reg_all: Regularization parameter
         """
-        # Store hyperparameters for MLflow tracking
-        self.n_factors = n_factors
-        self.n_epochs = n_epochs
-        self.lr_all = lr_all
-        self.reg_all = reg_all
-        
         self.model = SVD(
             n_factors=n_factors,
             n_epochs=n_epochs,
@@ -55,7 +45,6 @@ class CollaborativeFilteringModel:
         )
         self.storage = DataLakeStorage()
         self.trained = False
-        self.metrics = {}  # Store training metrics
         logger.info(f"Initialized SVD model with {n_factors} factors, {n_epochs} epochs")
     
     def prepare_data(self, interactions_df: pd.DataFrame) -> Dataset:
@@ -101,14 +90,7 @@ class CollaborativeFilteringModel:
         self.model.fit(trainset)
         self.trained = True
         
-        # Calculate and store metrics
-        predictions = self.model.test(testset)
-        self.metrics['rmse'] = accuracy.rmse(predictions, verbose=False)
-        self.metrics['mae'] = accuracy.mae(predictions, verbose=False)
-        self.metrics['train_size'] = trainset.n_ratings
-        self.metrics['test_size'] = len(testset)
-        
-        logger.info(f" Model training complete - RMSE: {self.metrics['rmse']:.4f}, MAE: {self.metrics['mae']:.4f}")
+        logger.info(" Model training complete")
         
         return trainset, testset
     
@@ -165,108 +147,42 @@ class CollaborativeFilteringModel:
         logger.info(f"Loaded model from {filepath}")
 
 
-def train_with_mlflow(
-    n_factors: int = 50,
-    n_epochs: int = 20,
-    lr_all: float = 0.005,
-    reg_all: float = 0.02,
-    experiment_name: str = "RecoMart-CollaborativeFiltering"
-) -> Dict:
-    """
-    Train model with full MLflow tracking
-    
-    Args:
-        n_factors: Number of latent factors
-        n_epochs: Number of training epochs  
-        lr_all: Learning rate
-        reg_all: Regularization parameter
-        experiment_name: MLflow experiment name
-    
-    Returns:
-        Dictionary with run info and metrics
-    """
-    # Set up MLflow
-    mlflow.set_experiment(experiment_name)
-    
-    with mlflow.start_run(run_name=f"svd_{datetime.now().strftime('%Y%m%d_%H%M%S')}"):
+def main():
+    """Main execution"""
+    try:
         logger.info("=" * 60)
-        logger.info("Training Collaborative Filtering Model with MLflow Tracking")
+        logger.info("Training Collaborative Filtering Model")
         logger.info("=" * 60)
         
-        # Log parameters
-        mlflow.log_param("model_type", "SVD")
-        mlflow.log_param("n_factors", n_factors)
-        mlflow.log_param("n_epochs", n_epochs)
-        mlflow.log_param("learning_rate", lr_all)
-        mlflow.log_param("regularization", reg_all)
-        
-        # Load data
+        # Load interaction features
         storage = DataLakeStorage()
         interactions_df = storage.load_latest('interaction_features', 'features')
         
-        mlflow.log_param("total_interactions", len(interactions_df))
-        mlflow.log_param("unique_users", interactions_df['user_id'].nunique())
-        mlflow.log_param("unique_items", interactions_df['item_id'].nunique())
-        
         # Initialize and train model
-        cf_model = CollaborativeFilteringModel(
-            n_factors=n_factors,
-            n_epochs=n_epochs,
-            lr_all=lr_all,
-            reg_all=reg_all
-        )
+        cf_model = CollaborativeFilteringModel()
         dataset = cf_model.prepare_data(interactions_df)
         trainset, testset = cf_model.train(dataset)
         
-        # Log metrics
-        mlflow.log_metric("rmse", cf_model.metrics['rmse'])
-        mlflow.log_metric("mae", cf_model.metrics['mae'])
-        mlflow.log_metric("train_size", cf_model.metrics['train_size'])
-        mlflow.log_metric("test_size", cf_model.metrics['test_size'])
-        
-        # Save and log model
+        # Save model
         model_dir = Path('models')
         model_dir.mkdir(exist_ok=True)
-        model_path = str(model_dir / 'collaborative_filtering.pkl')
-        cf_model.save_model(model_path)
-        mlflow.log_artifact(model_path)
+        cf_model.save_model(str(model_dir / 'collaborative_filtering.pkl'))
         
-        # Log model with MLflow
-        mlflow.sklearn.log_model(cf_model.model, "svd_model")
-        
-        # Test recommendations and log sample
+        # Test recommendation
         sample_user = interactions_df['user_id'].iloc[0]
         all_items = interactions_df['item_id'].unique().tolist()
         user_items = interactions_df[interactions_df['user_id'] == sample_user]['item_id'].tolist()
+        
         recommendations = cf_model.generate_recommendations(sample_user, all_items, user_items, top_k=10)
         
         logger.info(f"\nSample recommendations for user {sample_user}:")
         for rec in recommendations[:5]:
             logger.info(f"  Item {rec['item_id']}: score={rec['predicted_score']:.3f}")
         
-        # Get run info
-        run_id = mlflow.active_run().info.run_id
-        
         logger.info("=" * 60)
-        logger.info(f" MLflow Run ID: {run_id}")
-        logger.info(f" RMSE: {cf_model.metrics['rmse']:.4f}")
-        logger.info(f" MAE: {cf_model.metrics['mae']:.4f}")
+        logger.info(" Collaborative filtering training complete")
         logger.info("=" * 60)
         
-        return {
-            'run_id': run_id,
-            'metrics': cf_model.metrics,
-            'model_path': model_path
-        }
-
-
-def main():
-    """Main execution with MLflow tracking"""
-    try:
-        result = train_with_mlflow()
-        logger.info(f"\n Training complete! View results in MLflow UI")
-        logger.info(f"   Run: mlflow ui --port 5000")
-        logger.info(f"   Run ID: {result['run_id']}")
         return 0
     
     except Exception as e:

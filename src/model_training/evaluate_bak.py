@@ -15,7 +15,6 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 from collections import defaultdict
-import mlflow
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
@@ -161,21 +160,6 @@ class RecommendationEvaluator:
             logger.info(f"  Max:  {stats['max']:.4f}")
         
         logger.info("=" * 60)
-    
-    def log_to_mlflow(self, results: Dict[str, Dict[str, float]], prefix: str = "eval"):
-        """
-        Log evaluation metrics to MLflow
-        
-        Args:
-            results: Evaluation results dictionary
-            prefix: Prefix for metric names in MLflow
-        """
-        for metric_name, stats in results.items():
-            # Log mean values (most important)
-            mlflow.log_metric(f"{prefix}_{metric_name}_mean", stats['mean'])
-            mlflow.log_metric(f"{prefix}_{metric_name}_std", stats['std'])
-        
-        logger.info(f" Logged {len(results)} evaluation metrics to MLflow")
 
 
 def main():
