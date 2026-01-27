@@ -1,357 +1,564 @@
-# Task 2-3: Data Collection, Ingestion & Raw Data Storage
+# Task 2 & 3: Data Ingestion and Storage
 
 ## Overview
 
-This document describes the data ingestion pipeline and raw data storage implementation for the RecoMart recommendation system.
+This document describes the data ingestion and storage architecture for the RecoMart E-commerce Recommendation System. The system supports both **batch ingestion** from files and **real-time streaming** via a FastAPI + Kafka architecture.
 
 ---
 
-## 1. Data Sources
+## Table of Contents
 
-| Source | Format | Records | Update Frequency | File Location |
-|--------|--------|---------|------------------|---------------|
-| User Profiles | CSV | 927 users | Daily batch | `data/users1.csv`, `data/users2.csv` |
-| Product Catalog | JSON | 101 products | On-demand | `data/products.json` |
-| User Transactions | CSV | 3,001 records | Near real-time | `data/transactions.csv` |
+1. [Architecture Overview](#architecture-overview)
+2. [Data Sources](#data-sources)
+3. [Batch Ingestion Pipeline](#batch-ingestion-pipeline)
+4. [Real-Time Streaming Pipeline](#real-time-streaming-pipeline)
+5. [Storage Layer](#storage-layer)
+6. [API Documentation](#api-documentation)
+7. [Configuration](#configuration)
+8. [Running the Pipelines](#running-the-pipelines)
 
 ---
 
-## 2. Ingestion Scripts
+## Architecture Overview
 
-### 2.1 User Data Ingestion
-**File**: `src/ingestion/ingest_users.py`
-
-```python
-class UserDataIngestion:
-    """Handles ingestion of user data from CSV sources"""
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           DATA INGESTION ARCHITECTURE                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────┐     BATCH PIPELINE                                        │
+│  │ Source Files │ ─────────────────────────────────────────┐                │
+│  │ (CSV/JSON)   │                                          │                │
+│  └──────────────┘                                          ▼                │
+│        │              ┌─────────────┐              ┌──────────────┐         │
+│        │              │  Ingestion  │              │  Data Lake   │         │
+│        └─────────────►│   Modules   │─────────────►│   Storage    │         │
+│                       └─────────────┘              │  (Parquet)   │         │
+│                                                    └──────────────┘         │
+│                                                           ▲                 │
+│  ┌──────────────┐     STREAMING PIPELINE                  │                 │
+│  │   External   │                                         │                 │
+│  │   Clients    │                                         │                 │
+│  └──────────────┘                                         │                 │
+│        │              ┌─────────────┐              ┌──────────────┐         │
+│        │              │   FastAPI   │              │    Kafka     │         │
+│        └─────────────►│     API     │─────────────►│   Consumer   │─────────┘
+│                       └─────────────┘              └──────────────┘         │
+│                             │                                               │
+│                             ▼                                               │
+│                       ┌─────────────┐                                       │
+│                       │    Kafka    │                                       │
+│                       │   Topics    │                                       │
+│                       └─────────────┘                                       │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Features**:
-- Reads multiple CSV files (`users1.csv`, `users2.csv`)
-- Merges datasets and handles duplicates
-- Validates user_id, age (18-65), gender (M/F), device
-- Cleans string columns and removes NaN values
-- Stores in partitioned Parquet format
-- Archives processed source files with timestamps
+---
 
-**Execution**:
+## Data Sources
+
+### 1. User Data
+- **Source Files**: CSV files containing `user` in the filename (e.g., `users1.csv`, `users2.csv`)
+- **Location**: `data/` directory
+- **Schema**:
+
+| Column    | Type    | Description                          |
+|-----------|---------|--------------------------------------|
+| user_id   | Integer | Unique user identifier               |
+| age       | Integer | User's age (must be > 0)             |
+| gender    | String  | Gender (`M` or `F`)                  |
+| device    | String  | Device type (`Mobile`, `Desktop`, `Tablet`) |
+
+### 2. Product Data
+- **Source File**: `products.json`
+- **Location**: `data/` directory
+- **Schema**:
+
+| Column    | Type    | Description                          |
+|-----------|---------|--------------------------------------|
+| item_id   | Integer | Unique product identifier            |
+| price     | Float   | Product price                        |
+| brand     | String  | Product brand                        |
+| category  | String  | Product category                     |
+| rating    | Float   | Product rating                       |
+| in_stock  | Boolean | Stock availability status            |
+
+### 3. Transaction Data
+- **Source Files**: CSV files containing `transaction` in the filename (e.g., `transactions.csv`)
+- **Location**: `data/` directory
+- **Schema**:
+
+| Column     | Type     | Description                              |
+|------------|----------|------------------------------------------|
+| user_id    | Integer  | User who performed the action            |
+| item_id    | Integer  | Product involved in the transaction      |
+| view_mode  | String   | Interaction type (`view`, `add_to_cart`, `purchase`) |
+| rating     | Integer  | Optional rating (1-5)                    |
+| timestamp  | DateTime | When the interaction occurred            |
+
+---
+
+## Batch Ingestion Pipeline
+
+### User Data Ingestion
+
+**Module**: `src/ingestion/ingest_users.py`
+
+**Class**: `UserDataIngestion`
+
+#### Features:
+- **Dynamic File Discovery**: Automatically discovers CSV files containing "user" in the filename
+- **Multi-file Merging**: Concatenates multiple user files into a single dataset
+- **Data Cleaning**: Handles numeric conversion, null values, and string normalization
+- **Duplicate Detection**: Logs warnings for duplicate `user_id` values
+
+#### Pipeline Steps:
+1. **Discover Source Files**: Scan `data/` directory for user CSV files
+2. **Validate Files**: Verify file existence and accessibility
+3. **Read & Parse**: Load each CSV file into a pandas DataFrame
+4. **Merge Datasets**: Combine all user DataFrames
+5. **Clean Data**: Normalize types, handle nulls, strip whitespace
+6. **Store**: Save to partitioned data lake storage as Parquet
+
+#### Usage:
+```python
+from src.ingestion.ingest_users import UserDataIngestion
+
+ingestion = UserDataIngestion(data_dir='data', storage_base='storage')
+metadata = ingestion.ingest()
+```
+
+#### CLI Execution:
 ```bash
 python -m src.ingestion.ingest_users
 ```
 
-### 2.2 Product Data Ingestion
-**File**: `src/ingestion/ingest_products.py`
+---
 
+### Product Data Ingestion
+
+**Module**: `src/ingestion/ingest_products.py`
+
+**Class**: `ProductDataIngestion`
+
+#### Features:
+- **JSON Parsing**: Reads product data from JSON file format
+- **Schema Validation**: Validates presence of expected columns
+- **Null Detection**: Warns about null values in critical columns
+- **Duplicate Detection**: Identifies duplicate `item_id` entries
+
+#### Pipeline Steps:
+1. **Validate Source File**: Confirm `products.json` exists
+2. **Read JSON**: Parse product array from JSON file
+3. **Convert to DataFrame**: Transform JSON to tabular format
+4. **Validate Data**: Check for missing columns and null values
+5. **Store**: Save to partitioned data lake as Parquet
+
+#### Usage:
 ```python
-class ProductDataIngestion:
-    """Handles ingestion of product data from JSON source"""
+from src.ingestion.ingest_products import ProductDataIngestion
+
+ingestion = ProductDataIngestion()
+metadata = ingestion.ingest()
 ```
 
-**Features**:
-- Reads JSON file with nested product structures
-- Flattens JSON to tabular DataFrame
-- Validates item_id, price (>0), rating (1-5), category, brand
-- Checks for duplicate item_ids
-- Stores in partitioned Parquet format
-
-**Execution**:
+#### CLI Execution:
 ```bash
 python -m src.ingestion.ingest_products
 ```
 
-### 2.3 Transaction Data Ingestion
-**File**: `src/ingestion/ingest_transactions.py`
+---
 
+### Transaction Data Ingestion
+
+**Module**: `src/ingestion/ingest_transactions.py`
+
+**Class**: `TransactionDataIngestion`
+
+#### Features:
+- **Dynamic File Discovery**: Finds CSV files containing "transaction" in the name
+- **Timestamp Parsing**: Converts string timestamps to datetime objects
+- **View Mode Validation**: Validates interaction types against allowed values
+- **Multi-file Support**: Merges multiple transaction files
+
+#### Pipeline Steps:
+1. **Discover Files**: Scan for transaction CSV files
+2. **Validate Sources**: Verify file accessibility
+3. **Read & Merge**: Load and concatenate all transaction files
+4. **Parse Timestamps**: Convert timestamp strings to datetime
+5. **Validate Data**: Check view_mode values and column presence
+6. **Store**: Save to partitioned storage
+
+#### Usage:
 ```python
-class TransactionDataIngestion:
-    """Handles ingestion of transaction/interaction data from CSV source"""
+from src.ingestion.ingest_transactions import TransactionDataIngestion
+
+ingestion = TransactionDataIngestion()
+metadata = ingestion.ingest()
 ```
 
-**Features**:
-- Reads transaction CSV with user-item interactions
-- Parses timestamps to datetime format
-- Validates view_mode values (view, add_to_cart, purchase)
-- Validates rating range (1-5)
-- Validates foreign keys (user_id, item_id)
-- Archives processed files with timestamps
-
-**Execution**:
+#### CLI Execution:
 ```bash
 python -m src.ingestion.ingest_transactions
 ```
 
 ---
 
-## 3. Error Handling and Retry Mechanisms
+## Real-Time Streaming Pipeline
 
-### 3.1 Exception Handling
-All ingestion scripts implement comprehensive error handling:
+### Overview
 
-```python
-try:
-    df = pd.read_csv(file_path)
-    logger.info(f"Read {len(df)} records from {filename}")
-except FileNotFoundError:
-    logger.error(f"File not found: {file_path}")
-    raise
-except pd.errors.EmptyDataError:
-    logger.error(f"File is empty: {file_path}")
-    raise
-except Exception as e:
-    logger.error(f"Error reading {filename}: {str(e)}")
-    raise
+The streaming pipeline enables real-time data ingestion through a FastAPI REST API backed by Apache Kafka message queues.
+
+### Components
+
+#### 1. FastAPI Application (`src/api/main.py`)
+
+**Base URL**: `http://localhost:8000`
+
+Provides REST endpoints for:
+- Accepting user registrations and transaction events
+- Publishing events to Kafka topics
+- Internal endpoints for Kafka consumer to persist data
+
+#### 2. Kafka Producer (`src/streaming/kafka_producer.py`)
+
+**Class**: `TransactionProducer`
+
+- Serializes events as JSON
+- Publishes to configurable Kafka topics
+- Implements retry logic with acknowledgment (`acks='all'`)
+
+#### 3. Kafka Consumer (`src/streaming/kafka_consumer.py`)
+
+**Class**: `TransactionConsumer`
+
+- Subscribes to multiple topics (`recomart-users`, `recomart-transactions`)
+- Forwards received events to internal API endpoints
+- Supports consumer groups for scalability
+
+### Data Flow
+
+```
+Client Request → FastAPI (Public Endpoint) → Kafka Producer → Kafka Topic
+                                                                    │
+                                                                    ▼
+CSV Staging File ← FastAPI (Internal Endpoint) ← Kafka Consumer ◄──┘
 ```
 
-### 3.2 Prefect Flow with Retries
-The Prefect orchestration includes retry logic:
+### Kafka Topics
 
-```python
-@task(name="Ingest Users", retries=2, retry_delay_seconds=60)
-def ingest_users(target_date: str = None):
-    """Run user data ingestion with automatic retries"""
-    from src.ingestion.ingest_users import UserDataIngestion
-    ingestion = UserDataIngestion(ingestion_date=target_date)
-    result = ingestion.ingest()
-    return result
-```
+| Topic                    | Description                          |
+|--------------------------|--------------------------------------|
+| `recomart-users`         | User registration events             |
+| `recomart-transactions`  | Transaction/interaction events       |
 
 ---
 
-## 4. Logging System
+## Storage Layer
 
-### 4.1 Logger Configuration
-**File**: `src/utils/logger.py`
+### Data Lake Structure
 
-Features:
-- Colored console output for different log levels
-- Rotating file logs (10MB max, 5 backups)
-- Structured format with timestamps and module names
+The storage layer uses a partitioned directory structure managed by `DataLakeStorage` class.
 
-```python
-from src.utils.logger import get_logger
-logger = get_logger(__name__)
+**Module**: `src/utils/storage.py`
 
-logger.info("Starting ingestion...")
-logger.warning("Found duplicate records")
-logger.error("Ingestion failed")
-```
-
-### 4.2 Log Output Location
-- Console: Real-time colored output
-- Files: `logs/{module_name}.log`
-
-### 4.3 Sample Log Output
-```
-2026-01-22 18:30:00 - src.ingestion.ingest_users - INFO - ============================================================
-2026-01-22 18:30:00 - src.ingestion.ingest_users - INFO - Starting User Data Ingestion
-2026-01-22 18:30:00 - src.ingestion.ingest_users - INFO - ============================================================
-2026-01-22 18:30:01 - src.ingestion.ingest_users - INFO - Step 1: Validating source files...
-2026-01-22 18:30:01 - src.ingestion.ingest_users - INFO -  Found users1.csv
-2026-01-22 18:30:01 - src.ingestion.ingest_users - INFO -  Found users2.csv
-2026-01-22 18:30:02 - src.ingestion.ingest_users - INFO - Read 500 records from users1.csv
-2026-01-22 18:30:02 - src.ingestion.ingest_users - INFO - Read 428 records from users2.csv
-2026-01-22 18:30:02 - src.ingestion.ingest_users - INFO - Merged dataset contains 928 total records
-2026-01-22 18:30:02 - src.ingestion.ingest_users - WARNING - Found 1 duplicate user_ids in merged data
-2026-01-22 18:30:03 - src.ingestion.ingest_users - INFO - ✓ User ingestion completed in 2.45 seconds
-```
-
----
-
-## 5. Raw Data Storage Structure
-
-### 5.1 Data Lake Architecture
+### Directory Structure
 
 ```
 storage/
-├── raw/                    # Raw ingested data (as-is from sources)
+├── raw/                          # Raw ingested data
 │   ├── users/
-│   │   └── 2026-01-22/
+│   │   └── YYYY-MM-DD/
 │   │       ├── users_merged.parquet
 │   │       └── users_merged_metadata.json
 │   ├── products/
-│   │   └── 2026-01-22/
+│   │   └── YYYY-MM-DD/
 │   │       ├── products.parquet
 │   │       └── products_metadata.json
 │   └── transactions/
-│       └── 2026-01-22/
-│           ├── transactions.parquet
-│           └── transactions_metadata.json
+│       └── YYYY-MM-DD/
+│           ├── transactions_merged.parquet
+│           └── transactions_merged_metadata.json
+├── validated/                    # Validated data
+├── prepared/                     # Cleaned & prepared data
+└── features/                     # Feature store data
 ```
 
-### 5.2 Partitioning Strategy
+### Partitioning Strategy
 
-**Format**: `storage/{data_layer}/{source}/{YYYY-MM-DD}/{filename}.{format}`
+- **Format**: `storage/{data_type}/{source}/{YYYY-MM-DD}/`
+- **Time-based partitioning**: Data is organized by ingestion date
+- **Supports**: Multiple data layers (raw, validated, prepared, features)
 
-| Component | Description | Example |
-|-----------|-------------|---------|
-| data_layer | Pipeline stage | raw, validated, prepared, features |
-| source | Data source name | users, products, transactions |
-| YYYY-MM-DD | Date partition | 2026-01-22 |
-| filename | Descriptive name | users_merged |
-| format | File format | parquet, csv, json |
+### Metadata Tracking
 
-### 5.3 Storage Utility
-**File**: `src/utils/storage.py`
+Each stored file includes a companion metadata JSON file containing:
+
+| Field              | Description                                    |
+|--------------------|------------------------------------------------|
+| source             | Data source name (users, products, transactions) |
+| data_type          | Data layer (raw, validated, prepared)          |
+| timestamp          | ISO format ingestion timestamp                 |
+| file_path          | Full path to the data file                     |
+| file_size_bytes    | File size in bytes                             |
+| record_count       | Number of records stored                       |
+| schema.columns     | List of column names                           |
+| schema.dtypes      | Column data types                              |
+| checksum_md5       | MD5 hash for integrity verification            |
+| null_counts        | Null count per column                          |
+| memory_usage_bytes | DataFrame memory usage                         |
+
+### Supported Formats
+
+- **Parquet** (default): Efficient columnar storage with compression
+- **CSV**: Human-readable format
+- **JSON**: Record-oriented format
+
+### Storage Operations
 
 ```python
-class DataLakeStorage:
-    """Manages data lake storage with partitioning and metadata"""
-    
-    def save_dataframe(self, df, source, data_type, filename, format='parquet'):
-        """Save dataframe to partitioned storage with metadata"""
-        
-    def load_latest(self, source, data_type, format='parquet'):
-        """Load most recent data from storage"""
+from src.utils.storage import DataLakeStorage
+
+storage = DataLakeStorage(base_path='storage')
+
+# Save DataFrame
+metadata = storage.save_dataframe(
+    df=my_dataframe,
+    source='users',
+    data_type='raw',
+    filename='users_merged',
+    format='parquet'
+)
+
+# Load latest data
+df = storage.load_latest(
+    source='users',
+    data_type='raw',
+    format='parquet'
+)
 ```
 
 ---
 
-## 6. Metadata Generation
+## API Documentation
 
-### 6.1 Metadata Schema
-Each data file has an accompanying `_metadata.json`:
+### Public Endpoints
 
+#### POST `/users`
+Create a new user registration event.
+
+**Request Body**:
 ```json
 {
-  "source": "users",
-  "data_type": "raw",
-  "timestamp": "2026-01-22T18:30:00",
-  "file_path": "storage/raw/users/2026-01-22/users_merged.parquet",
-  "file_size_bytes": 45678,
-  "record_count": 927,
-  "schema": {
-    "columns": ["user_id", "age", "gender", "device"],
-    "dtypes": {
-      "user_id": "int64",
-      "age": "float64",
-      "gender": "object",
-      "device": "object"
-    }
-  },
-  "checksum_md5": "abc123def456...",
-  "null_counts": {
-    "user_id": 0,
-    "age": 5,
-    "gender": 2,
-    "device": 3
-  },
-  "memory_usage_bytes": 74256
+    "user_id": 1001,
+    "age": 28,
+    "gender": "M",
+    "device": "Mobile"
 }
 ```
 
-### 6.2 Checksum Calculation
-MD5 checksums ensure data integrity:
+**Response** (201 Created):
+```json
+{
+    "status": "accepted",
+    "user_id": 1001
+}
+```
 
-```python
-def _calculate_checksum(self, file_path: Path) -> str:
-    """Calculate MD5 checksum of file"""
-    hash_md5 = hashlib.md5()
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+**Validation Rules**:
+- `user_id`: Required, integer
+- `age`: Required, integer > 0
+- `gender`: Required, one of `M`, `F`
+- `device`: Required, one of `Mobile`, `Desktop`, `Tablet`
+
+---
+
+#### POST `/transactions`
+Create a new transaction event.
+
+**Request Body**:
+```json
+{
+    "user_id": 1001,
+    "item_id": 150,
+    "view_mode": "purchase",
+    "rating": 5,
+    "timestamp": "2026-01-27T10:30:00"
+}
+```
+
+**Response** (201 Created):
+```json
+{
+    "status": "accepted",
+    "user_id": 1001
+}
+```
+
+**Validation Rules**:
+- `user_id`: Required, integer
+- `item_id`: Required, integer
+- `view_mode`: Required, one of `view`, `add_to_cart`, `purchase`
+- `rating`: Optional, integer 1-5
+- `timestamp`: Optional, ISO datetime (defaults to current time)
+
+---
+
+#### GET `/health`
+Health check endpoint.
+
+**Response**:
+```json
+{
+    "status": "healthy"
+}
 ```
 
 ---
 
-## 7. File Archive System
+### Internal Endpoints (Kafka Consumer Use Only)
 
-### 7.1 Archive Directory
-Processed source files are moved to `raw/archive/`:
+#### POST `/internal/ingest-user`
+Called by Kafka Consumer to persist user data to CSV staging file.
 
-```
-raw/
-├── archive/
-│   ├── users1_20260122_183000.csv
-│   ├── users2_20260122_183000.csv
-│   ├── products_20260122_183500.json
-│   └── transactions_20260122_184000.csv
-```
-
-### 7.2 Archive Logic
-
-```python
-def archive_processed_files(self, processed_paths: List[Path]):
-    """Move processed source files to archive directory"""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    
-    for source_path in processed_paths:
-        archive_filename = f"{source_path.stem}_{timestamp}{source_path.suffix}"
-        dest_path = self.archive_dir / archive_filename
-        shutil.move(str(source_path), str(dest_path))
-        logger.info(f"Archived {source_path.name} to {dest_path}")
-```
+#### POST `/internal/ingest-transaction`
+Called by Kafka Consumer to persist transaction data to CSV staging file.
 
 ---
 
-## 8. Running the Ingestion Pipeline
+## Configuration
 
-### 8.1 Individual Scripts
-```bash
-# Ingest users
-python -m src.ingestion.ingest_users
-
-# Ingest products
-python -m src.ingestion.ingest_products
-
-# Ingest transactions
-python -m src.ingestion.ingest_transactions
-```
-
-### 8.2 All Ingestion (Orchestrated)
-```bash
-# Via Prefect flow
-python src/orchestration/prefect_flow.py --mode run --flow ingestion
-```
-
-### 8.3 Complete Pipeline
-```bash
-# Run full pipeline
-python run_pipeline.py
-```
-
----
-
-## 9. Ingestion Results Summary
-
-| Dataset | Records | File Size | Format | Status |
-|---------|---------|-----------|--------|--------|
-| Users | 927 | ~45 KB | Parquet | ✅ Ingested |
-| Products | 101 | ~12 KB | Parquet | ✅ Ingested |
-| Transactions | 3,001 | ~120 KB | Parquet | ✅ Ingested |
-
----
-
-## 10. Configuration
-
-### 10.1 Config File
-**File**: `src/config.json`
+### Configuration File: `src/config.json`
 
 ```json
 {
-    "data_dir": "raw",
+    "data_dir": "data",
     "storage_base": "storage",
     "products_file": "products.json",
     "interactions_file": "interactions.json",
-    "users_file": "users.json",
-    "schedules": {
-        "ingestion_flow": {
-            "enabled": true,
-            "cron": "0 6 * * *",
-            "description": "Daily at 6:00 AM"
-        }
-    }
+    "users_file": "users.json"
 }
 ```
 
+### Configuration Parameters
+
+| Parameter         | Description                              | Default     |
+|-------------------|------------------------------------------|-------------|
+| data_dir          | Directory containing source data files   | `data`      |
+| storage_base      | Base directory for data lake storage     | `storage`   |
+| products_file     | Name of the products JSON file           | `products.json` |
+
+### Kafka Configuration
+
+| Parameter           | Default Value      | Description                      |
+|---------------------|--------------------|----------------------------------|
+| bootstrap_servers   | `localhost:9092`   | Kafka broker address             |
+| group_id            | `recomart-consumer-group` | Consumer group identifier |
+| acks                | `all`              | Producer acknowledgment setting  |
+| retries             | `3`                | Number of retry attempts         |
+
 ---
 
-## Deliverables Checklist
+## Running the Pipelines
 
-| Deliverable | Status | Location |
-|-------------|--------|----------|
-| Python scripts for ingestion | ✅ | `src/ingestion/` |
-| Logs showing ingestion success/failure | ✅ | `logs/` |
-| Folder/bucket structure for raw data | ✅ | `storage/raw/` |
-| Storage structure documentation | ✅ | `docs/STORAGE_STRUCTURE.md` |
-| Upload scripts or configuration files | ✅ | `src/utils/storage.py`, `src/config.json` |
+### Prerequisites
+
+1. **Python Environment**: Python 3.8+
+2. **Dependencies**: Install via `pip install -r requirements.txt`
+3. **Kafka** (for streaming): Running Kafka broker on `localhost:9092`
+
+### Batch Ingestion
+
+#### Run All Ingestion Modules:
+```bash
+# From project root
+python -m src.ingestion.ingest_users
+python -m src.ingestion.ingest_products
+python -m src.ingestion.ingest_transactions
+```
+
+#### Using the Pipeline Runner:
+```bash
+python run_pipeline.py
+```
+
+### Real-Time Streaming
+
+#### 1. Start the FastAPI Server:
+```bash
+uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### 2. Start Kafka Consumer:
+```bash
+python -m src.streaming.kafka_consumer
+```
+
+#### 3. Send Test Events:
+```bash
+# Create a user
+curl -X POST http://localhost:8000/users \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": 1001, "age": 25, "gender": "F", "device": "Mobile"}'
+
+# Create a transaction
+curl -X POST http://localhost:8000/transactions \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": 1001, "item_id": 150, "view_mode": "purchase", "rating": 5}'
+```
+
+### Staging Files
+
+Real-time streaming data is staged in:
+- **Users**: `data/users_api_staging.csv`
+- **Transactions**: `data/transactions_api_staging.csv`
+
+---
+
+## Error Handling
+
+### Batch Pipeline Errors
+
+| Error Type           | Handling                                      |
+|----------------------|-----------------------------------------------|
+| FileNotFoundError    | Logged and raised with descriptive message    |
+| EmptyDataError       | Logged, empty DataFrame returned              |
+| ParseError           | Logged with details, exception propagated     |
+| ValidationWarning    | Logged as warning, processing continues       |
+
+### Streaming Pipeline Errors
+
+| Error Type           | Handling                                      |
+|----------------------|-----------------------------------------------|
+| Kafka Connection     | Retry with backoff, log failure               |
+| API Timeout          | 5-second timeout, error logged                |
+| Serialization Error  | JSON encoding with default string conversion  |
+
+---
+
+## Logging
+
+All modules use centralized logging via `src/utils/logger.py`.
+
+**Log Levels**:
+- `INFO`: Pipeline progress, successful operations
+- `WARNING`: Non-critical issues (duplicates, missing optional columns)
+- `ERROR`: Operation failures, missing files
+- `CRITICAL`: Pipeline-breaking failures
+
+**Log Output**: Console and `logs/` directory (when configured)
+
+---
+
+## Summary
+
+The RecoMart data ingestion system provides:
+
+1. **Flexible Batch Ingestion**: Dynamic file discovery and multi-source merging
+2. **Real-Time Streaming**: FastAPI + Kafka architecture for live data
+3. **Robust Storage**: Partitioned data lake with metadata tracking
+4. **Data Quality**: Validation, cleaning, and duplicate detection
+5. **Observability**: Comprehensive logging and metadata generation
+
+This architecture supports both historical data loading and live event processing, enabling the downstream ML recommendation pipeline to work with fresh, validated data.
