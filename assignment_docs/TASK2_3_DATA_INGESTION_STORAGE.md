@@ -23,26 +23,26 @@ This document describes the data ingestion and storage architecture for the Reco
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           DATA INGESTION ARCHITECTURE                        │
+│                           DATA INGESTION ARCHITECTURE                       │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
+│                                                                             │
 │  ┌──────────────┐     BATCH PIPELINE                                        │
-│  │ Source Files │ ─────────────────────────────────────────┐                │
-│  │ (CSV/JSON)   │                                          │                │
-│  └──────────────┘                                          ▼                │
+│  │ Source Files │                                                           │
+│  │ (CSV/JSON)   │                                                           │
+│  └──────────────┘                                                           │
 │        │              ┌─────────────┐              ┌──────────────┐         │
 │        │              │  Ingestion  │              │  Data Lake   │         │
 │        └─────────────►│   Modules   │─────────────►│   Storage    │         │
 │                       └─────────────┘              │  (Parquet)   │         │
-│                                                    └──────────────┘         │
-│                                                           ▲                 │
+│                             ▲                      └──────────────┘         │
+│                             │_____________________________                  │
 │  ┌──────────────┐     STREAMING PIPELINE                  │                 │
 │  │   External   │                                         │                 │
 │  │   Clients    │                                         │                 │
 │  └──────────────┘                                         │                 │
 │        │              ┌─────────────┐              ┌──────────────┐         │
 │        │              │   FastAPI   │              │    Kafka     │         │
-│        └─────────────►│     API     │─────────────►│   Consumer   │─────────┘
+│        └─────────────►│     API     │─────────────►│   Consumer   │         |
 │                       └─────────────┘              └──────────────┘         │
 │                             │                                               │
 │                             ▼                                               │
@@ -58,7 +58,7 @@ This document describes the data ingestion and storage architecture for the Reco
 ## Data Sources
 
 ### 1. User Data
-- **Source Files**: CSV files containing `user` in the filename (e.g., `users1.csv`, `users2.csv`)
+- **Source Files**: CSV files containing `user` in the filename
 - **Location**: `data/` directory
 - **Schema**:
 
@@ -84,7 +84,7 @@ This document describes the data ingestion and storage architecture for the Reco
 | in_stock  | Boolean | Stock availability status            |
 
 ### 3. Transaction Data
-- **Source Files**: CSV files containing `transaction` in the filename (e.g., `transactions.csv`)
+- **Source Files**: CSV files containing `transaction` in the filename
 - **Location**: `data/` directory
 - **Schema**:
 
@@ -106,12 +106,6 @@ This document describes the data ingestion and storage architecture for the Reco
 
 **Class**: `UserDataIngestion`
 
-#### Features:
-- **Dynamic File Discovery**: Automatically discovers CSV files containing "user" in the filename
-- **Multi-file Merging**: Concatenates multiple user files into a single dataset
-- **Data Cleaning**: Handles numeric conversion, null values, and string normalization
-- **Duplicate Detection**: Logs warnings for duplicate `user_id` values
-
 #### Pipeline Steps:
 1. **Discover Source Files**: Scan `data/` directory for user CSV files
 2. **Validate Files**: Verify file existence and accessibility
@@ -120,32 +114,11 @@ This document describes the data ingestion and storage architecture for the Reco
 5. **Clean Data**: Normalize types, handle nulls, strip whitespace
 6. **Store**: Save to partitioned data lake storage as Parquet
 
-#### Usage:
-```python
-from src.ingestion.ingest_users import UserDataIngestion
-
-ingestion = UserDataIngestion(data_dir='data', storage_base='storage')
-metadata = ingestion.ingest()
-```
-
-#### CLI Execution:
-```bash
-python -m src.ingestion.ingest_users
-```
-
----
-
 ### Product Data Ingestion
 
 **Module**: `src/ingestion/ingest_products.py`
 
 **Class**: `ProductDataIngestion`
-
-#### Features:
-- **JSON Parsing**: Reads product data from JSON file format
-- **Schema Validation**: Validates presence of expected columns
-- **Null Detection**: Warns about null values in critical columns
-- **Duplicate Detection**: Identifies duplicate `item_id` entries
 
 #### Pipeline Steps:
 1. **Validate Source File**: Confirm `products.json` exists
@@ -153,19 +126,6 @@ python -m src.ingestion.ingest_users
 3. **Convert to DataFrame**: Transform JSON to tabular format
 4. **Validate Data**: Check for missing columns and null values
 5. **Store**: Save to partitioned data lake as Parquet
-
-#### Usage:
-```python
-from src.ingestion.ingest_products import ProductDataIngestion
-
-ingestion = ProductDataIngestion()
-metadata = ingestion.ingest()
-```
-
-#### CLI Execution:
-```bash
-python -m src.ingestion.ingest_products
-```
 
 ---
 
@@ -175,12 +135,6 @@ python -m src.ingestion.ingest_products
 
 **Class**: `TransactionDataIngestion`
 
-#### Features:
-- **Dynamic File Discovery**: Finds CSV files containing "transaction" in the name
-- **Timestamp Parsing**: Converts string timestamps to datetime objects
-- **View Mode Validation**: Validates interaction types against allowed values
-- **Multi-file Support**: Merges multiple transaction files
-
 #### Pipeline Steps:
 1. **Discover Files**: Scan for transaction CSV files
 2. **Validate Sources**: Verify file accessibility
@@ -188,19 +142,6 @@ python -m src.ingestion.ingest_products
 4. **Parse Timestamps**: Convert timestamp strings to datetime
 5. **Validate Data**: Check view_mode values and column presence
 6. **Store**: Save to partitioned storage
-
-#### Usage:
-```python
-from src.ingestion.ingest_transactions import TransactionDataIngestion
-
-ingestion = TransactionDataIngestion()
-metadata = ingestion.ingest()
-```
-
-#### CLI Execution:
-```bash
-python -m src.ingestion.ingest_transactions
-```
 
 ---
 
@@ -308,36 +249,6 @@ Each stored file includes a companion metadata JSON file containing:
 | checksum_md5       | MD5 hash for integrity verification            |
 | null_counts        | Null count per column                          |
 | memory_usage_bytes | DataFrame memory usage                         |
-
-### Supported Formats
-
-- **Parquet** (default): Efficient columnar storage with compression
-- **CSV**: Human-readable format
-- **JSON**: Record-oriented format
-
-### Storage Operations
-
-```python
-from src.utils.storage import DataLakeStorage
-
-storage = DataLakeStorage(base_path='storage')
-
-# Save DataFrame
-metadata = storage.save_dataframe(
-    df=my_dataframe,
-    source='users',
-    data_type='raw',
-    filename='users_merged',
-    format='parquet'
-)
-
-# Load latest data
-df = storage.load_latest(
-    source='users',
-    data_type='raw',
-    format='parquet'
-)
-```
 
 ---
 
@@ -468,20 +379,6 @@ Called by Kafka Consumer to persist transaction data to CSV staging file.
 2. **Dependencies**: Install via `pip install -r requirements.txt`
 3. **Kafka** (for streaming): Running Kafka broker on `localhost:9092`
 
-### Batch Ingestion
-
-#### Run All Ingestion Modules:
-```bash
-# From project root
-python -m src.ingestion.ingest_users
-python -m src.ingestion.ingest_products
-python -m src.ingestion.ingest_transactions
-```
-
-#### Using the Pipeline Runner:
-```bash
-python run_pipeline.py
-```
 
 ### Real-Time Streaming
 
@@ -538,27 +435,6 @@ Real-time streaming data is staged in:
 ---
 
 ## Logging
-
-All modules use centralized logging via `src/utils/logger.py`.
-
-**Log Levels**:
-- `INFO`: Pipeline progress, successful operations
-- `WARNING`: Non-critical issues (duplicates, missing optional columns)
-- `ERROR`: Operation failures, missing files
-- `CRITICAL`: Pipeline-breaking failures
-
 **Log Output**: Console and `logs/` directory (when configured)
 
 ---
-
-## Summary
-
-The RecoMart data ingestion system provides:
-
-1. **Flexible Batch Ingestion**: Dynamic file discovery and multi-source merging
-2. **Real-Time Streaming**: FastAPI + Kafka architecture for live data
-3. **Robust Storage**: Partitioned data lake with metadata tracking
-4. **Data Quality**: Validation, cleaning, and duplicate detection
-5. **Observability**: Comprehensive logging and metadata generation
-
-This architecture supports both historical data loading and live event processing, enabling the downstream ML recommendation pipeline to work with fresh, validated data.
