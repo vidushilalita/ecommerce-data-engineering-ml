@@ -6,19 +6,6 @@ This document describes the data ingestion and storage architecture for the Reco
 
 ---
 
-## Table of Contents
-
-1. [Architecture Overview](#architecture-overview)
-2. [Data Sources](#data-sources)
-3. [Batch Ingestion Pipeline](#batch-ingestion-pipeline)
-4. [Real-Time Streaming Pipeline](#real-time-streaming-pipeline)
-5. [Storage Layer](#storage-layer)
-6. [API Documentation](#api-documentation)
-7. [Configuration](#configuration)
-8. [Running the Pipelines](#running-the-pipelines)
-
----
-
 ## Architecture Overview
 
 ```
