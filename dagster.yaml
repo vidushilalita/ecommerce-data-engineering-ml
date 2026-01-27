@@ -1,45 +1,51 @@
-# Dagster Configuration File
-# Configures the Dagster instance, storage, and compute
+# Dagster 1.12+ Instance Configuration
+# Must use explicit class/module schema
 
-# Instance configuration
-instance:
-  # Storage location for run history and event logs
-  run_storage:
-    module: dagster.core.storage.runs
-    class: SqliteRunStorage
-    config:
-      base_dir: ./dagster_data
-
-  # Event log storage
-  event_log_storage:
-    module: dagster.core.storage.event_log
-    class: SqliteEventLogStorage
-    config:
-      base_dir: ./dagster_data
-
-  # Schedule and sensor storage
-  schedule_storage:
-    module: dagster.core.storage.schedules
-    class: SqliteScheduleStorage
-    config:
-      base_dir: ./dagster_data
-
-  # Compute logs
-  compute_logs:
-    module: dagster.core.storage.compute_logs
-    class: LocalComputeLogManager
-    config:
-      base_dir: ./dagster_data/logs
-
-# Execution settings
-execution:
-  # Use in-process executor for lightweight execution
+run_storage:
+  module: dagster._core.storage.runs
+  class: SqliteRunStorage
   config:
-    multiprocess:
-      max_concurrent: 4
+    base_dir: ./dagster_data/runs
 
-# Logging configuration
-loggers:
-  console:
-    config:
-      log_level: INFO
+event_log_storage:
+  module: dagster._core.storage.event_log
+  class: SqliteEventLogStorage
+  config:
+    base_dir: ./dagster_data/event_logs
+
+schedule_storage:
+  module: dagster._core.storage.schedules
+  class: SqliteScheduleStorage
+  config:
+    base_dir: ./dagster_data/schedules
+
+local_artifact_storage:
+  module: dagster._core.storage.root
+  class: LocalArtifactStorage
+  config:
+    base_dir: ./dagster_data/artifacts
+
+compute_logs:
+  module: dagster._core.storage.compute_logs
+  class: LocalComputeLogManager
+  config:
+    base_dir: ./dagster_data/compute_logs
+
+run_launcher:
+  module: dagster._core.launcher
+  class: DefaultRunLauncher
+
+run_coordinator:
+  module: dagster._core.run_coordinator
+  class: DefaultRunCoordinator
+
+concurrency:
+  runs:
+    max_concurrent_runs: 4
+
+run_retries:
+  enabled: true
+  max_retries: 2
+
+telemetry:
+  enabled: false

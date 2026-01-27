@@ -28,8 +28,11 @@ scikit-surprise
 mlflow
 
 # Orchestration
-dagster>=1.5.0
-dagster-webui>=1.5.0
+dagster>=1.12
+dagster-webserver>=1.12
+dagster-graphql>=1.12
+
+#dagster-webui>=1.5.0
 apache-airflow
 
 # Visualization & Plotting
@@ -69,3 +72,4 @@ pyodbc
 fastapi
 uvicorn
 streamlit
+
