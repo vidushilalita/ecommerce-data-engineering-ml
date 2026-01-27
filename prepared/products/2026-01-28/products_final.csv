@@ -1,0 +1,102 @@
+item_id,price,brand,category,rating,in_stock
+100,29.76,LG,Electronics,2.1,True
+101,591.81,Nike,Sports,3.7,True
+102,35.11,Dove,Beauty & Personal Care,1.4,True
+103,485.59,Penguin,Books,3.2,False
+104,364.88,Zara,Fashion,2.1,True
+105,561.53,Adidas,Sports,2.4,True
+106,766.2,Puma,Sports,2.3,True
+107,86.41,L'Oreal,Beauty & Personal Care,4.4,False
+108,586.49,Samsung,Electronics,3.1,False
+109,446.11,Sony,Electronics,4.3,False
+110,566.61,Puma,Sports,1.2,True
+111,788.33,Uniqlo,Fashion,4.4,True
+112,229.6,L'Oreal,Beauty & Personal Care,3.5,False
+113,302.44,Adidas,Sports,1.8,False
+114,491.21,Sony,Electronics,1.7,True
+115,375.19,Adidas,Sports,2.1,True
+116,675.85,IKEA,Home & Kitchen,4.1,True
+117,645.99,Samsung,Electronics,2.6,True
+118,731.38,Puma,Sports,3.3,False
+119,527.8,Puma,Sports,2.6,False
+120,219.26,Nike,Sports,2.0,False
+121,719.28,Dove,Beauty & Personal Care,2.6,True
+122,412.53,Nike,Sports,1.4,True
+123,130.74,LG,Electronics,1.6,False
+124,313.97,Sony,Electronics,3.4,False
+125,208.62,Penguin,Books,3.2,True
+126,548.55,LG,Electronics,3.1,False
+127,98.13,IKEA,Home & Kitchen,2.7,False
+128,763.51,Apple,Electronics,4.5,False
+129,611.95,Penguin,Books,3.0,True
+130,674.92,Uniqlo,Fashion,3.0,True
+131,305.39,Nike,Sports,1.6,True
+132,396.0,IKEA,Home & Kitchen,1.4,False
+133,199.17,Uniqlo,Fashion,2.0,True
+134,588.21,Sony,Electronics,4.3,True
+135,531.2,Nike,Sports,4.8,True
+136,426.86,H&M,Fashion,3.4,True
+137,573.23,Puma,Sports,2.6,False
+138,720.7,LEGO,Toys & Games,2.8,True
+139,60.58,Zara,Fashion,1.1,True
+140,15.68,Zara,Fashion,3.8,True
+141,63.25,Zara,Fashion,1.1,False
+142,416.18,Sony,Electronics,2.1,False
+143,435.99,Puma,Sports,3.9,False
+144,629.85,Zara,Fashion,4.2,True
+145,86.58,LG,Electronics,2.7,False
+146,378.95,Dove,Beauty & Personal Care,3.9,True
+147,328.07,Samsung,Electronics,2.4,True
+148,161.36,Zara,Fashion,3.1,True
+149,154.96,Dove,Beauty & Personal Care,2.9,True
+150,648.34,LEGO,Toys & Games,4.4,True
+151,525.19,Samsung,Electronics,3.2,True
+152,741.83,Sony,Electronics,4.4,True
+153,393.66,Dove,Beauty & Personal Care,1.9,False
+154,140.06,Samsung,Electronics,1.0,False
+155,741.95,H&M,Fashion,4.1,False
+156,560.31,Dove,Beauty & Personal Care,3.9,False
+157,160.02,Nike,Sports,1.9,True
+158,600.9,Samsung,Electronics,1.2,False
+159,736.32,Penguin,Books,3.1,True
+160,73.29,Penguin,Books,1.7,True
+161,328.98,Zara,Fashion,4.8,True
+162,499.31,Samsung,Electronics,2.7,False
+163,171.36,H&M,Fashion,3.9,True
+164,322.67,H&M,Fashion,3.7,False
+165,259.78,LEGO,Toys & Games,4.0,True
+166,372.05,Apple,Electronics,5.0,True
+167,434.73,Sony,Electronics,3.0,True
+168,705.88,Philips,Home & Kitchen,4.5,False
+169,134.62,Uniqlo,Fashion,4.3,False
+170,16.18,Penguin,Books,4.3,False
+171,751.75,LG,Electronics,1.5,True
+172,596.51,LG,Electronics,1.6,False
+173,576.91,Puma,Sports,1.8,False
+174,395.94,Penguin,Books,4.6,True
+175,511.08,Sony,Electronics,4.3,True
+176,273.51,Apple,Electronics,1.5,False
+177,595.57,Adidas,Sports,3.2,False
+178,98.38,Apple,Electronics,4.8,True
+179,669.33,Samsung,Electronics,3.3,True
+180,110.68,Dove,Beauty & Personal Care,2.2,True
+181,175.96,Philips,Home & Kitchen,2.0,True
+182,626.29,Philips,Home & Kitchen,4.5,False
+183,741.35,Nike,Sports,1.9,True
+184,706.32,Adidas,Sports,1.1,False
+185,643.77,Dove,Beauty & Personal Care,4.5,True
+186,135.77,H&M,Fashion,3.8,False
+187,688.29,Samsung,Electronics,1.9,False
+188,251.1,Philips,Home & Kitchen,4.2,True
+189,28.69,Zara,Fashion,1.8,False
+190,692.84,H&M,Fashion,4.9,False
+191,516.77,Philips,Home & Kitchen,2.6,False
+192,101.12,Apple,Electronics,4.9,True
+193,40.22,H&M,Fashion,3.4,False
+194,354.75,IKEA,Home & Kitchen,4.9,True
+195,720.61,L'Oreal,Beauty & Personal Care,1.8,True
+196,11.34,Dove,Beauty & Personal Care,4.7,True
+197,350.72,Philips,Home & Kitchen,4.8,False
+198,534.08,IKEA,Home & Kitchen,1.5,False
+199,254.33,Penguin,Books,2.6,False
+200,447.99,Uniqlo,Fashion,1.8,False

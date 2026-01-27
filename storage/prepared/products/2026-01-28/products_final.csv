@@ -1,0 +1,102 @@
+item_id,price,brand,category,rating,in_stock,category_encoded,brand_encoded,price_normalized,price_tier
+100,29.76,LG,Electronics,2.1,True,2,7,0.023706868814270456,low
+101,591.81,Nike,Sports,3.7,True,5,8,0.7470752519337442,high
+102,35.11,Dove,Beauty & Personal Care,1.4,True,0,2,0.030592414316786574,low
+103,485.59,Penguin,Books,3.2,False,1,9,0.6103682158071532,medium
+104,364.88,Zara,Fashion,2.1,True,3,15,0.4550122910204764,medium
+105,561.53,Adidas,Sports,2.4,True,5,0,0.708104351407354,medium
+106,766.2,Puma,Sports,2.3,True,5,11,0.9715182949587511,high
+107,86.41,L'Oreal,Beauty & Personal Care,4.4,False,0,5,0.09661643006988506,low
+108,586.49,Samsung,Electronics,3.1,False,2,12,0.7402283169667563,high
+109,446.11,Sony,Electronics,4.3,False,2,13,0.5595567510521371,medium
+110,566.61,Puma,Sports,1.2,True,5,11,0.714642402090117,high
+111,788.33,Uniqlo,Fashion,4.4,True,3,14,0.9999999999999999,high
+112,229.6,L'Oreal,Beauty & Personal Care,3.5,False,0,5,0.2809045161456389,low
+113,302.44,Adidas,Sports,1.8,False,5,0,0.37465089640793314,low
+114,491.21,Sony,Electronics,1.7,True,2,13,0.6176012561294224,medium
+115,375.19,Adidas,Sports,2.1,True,5,0,0.468281445063643,medium
+116,675.85,IKEA,Home & Kitchen,4.1,True,4,4,0.8552362321265395,high
+117,645.99,Samsung,Electronics,2.6,True,2,12,0.816805879097543,high
+118,731.38,Puma,Sports,3.3,False,5,11,0.9267043333891041,high
+119,527.8,Puma,Sports,2.6,False,5,11,0.6646932392952289,medium
+120,219.26,Nike,Sports,2.0,False,5,8,0.2675967515669442,low
+121,719.28,Dove,Beauty & Personal Care,2.6,True,0,2,0.9111314173927592,high
+122,412.53,Nike,Sports,1.4,True,5,8,0.5163386916176527,medium
+123,130.74,LG,Electronics,1.6,False,2,7,0.15366993140194854,low
+124,313.97,Sony,Electronics,3.4,False,2,13,0.3894902122292436,medium
+125,208.62,Penguin,Books,3.2,True,1,9,0.25390288163296826,low
+126,548.55,LG,Electronics,3.1,False,2,7,0.691398859702184,medium
+127,98.13,IKEA,Home & Kitchen,2.7,False,4,4,0.11170027928287363,low
+128,763.51,Apple,Electronics,4.5,False,2,1,0.9680562169397289,high
+129,611.95,Penguin,Books,3.0,True,1,9,0.7729957914516274,high
+130,674.92,Uniqlo,Fashion,3.0,True,3,14,0.8540393055251675,high
+131,305.39,Nike,Sports,1.6,True,5,8,0.378447599068199,medium
+132,396.0,IKEA,Home & Kitchen,1.4,False,4,4,0.49506428654165424,medium
+133,199.17,Uniqlo,Fashion,2.0,True,3,14,0.24174056294160795,low
+134,588.21,Sony,Electronics,4.3,True,2,13,0.742441987670369,high
+135,531.2,Nike,Sports,4.8,True,5,8,0.6690690999884168,medium
+136,426.86,H&M,Fashion,3.4,True,3,3,0.5347816574215885,medium
+137,573.23,Puma,Sports,2.6,False,5,11,0.7231624602633239,high
+138,720.7,LEGO,Toys & Games,2.8,True,6,6,0.9129589827410907,high
+139,60.58,Zara,Fashion,1.1,True,3,15,0.06337275898016705,low
+140,15.68,Zara,Fashion,3.8,True,3,15,0.005585657473069152,low
+141,63.25,Zara,Fashion,1.1,False,3,15,0.06680909664217041,low
+142,416.18,Sony,Electronics,2.1,False,2,13,0.5210363067735749,medium
+143,435.99,Puma,Sports,3.9,False,5,11,0.5465321304006486,medium
+144,629.85,Zara,Fashion,4.2,True,3,15,0.7960334109834103,high
+145,86.58,LG,Electronics,2.7,False,2,7,0.09683522310454444,low
+146,378.95,Dove,Beauty & Personal Care,3.9,True,0,2,0.47312063218316835,medium
+147,328.07,Samsung,Electronics,2.4,True,2,12,0.40763716392746363,medium
+148,161.36,Zara,Fashion,3.1,True,3,15,0.19307841799765763,low
+149,154.96,Dove,Beauty & Personal Care,2.9,True,0,2,0.18484150375165703,low
+150,648.34,LEGO,Toys & Games,4.4,True,6,6,0.8198303710472464,high
+151,525.19,Samsung,Electronics,3.2,True,2,12,0.6613341227042819,medium
+152,741.83,Sony,Electronics,4.4,True,2,13,0.9401536699314019,high
+153,393.66,Dove,Beauty & Personal Care,1.9,False,0,2,0.4920526647704604,medium
+154,140.06,Samsung,Electronics,1.0,False,2,12,0.1656649377726869,low
+155,741.95,H&M,Fashion,4.1,False,3,3,0.9403081120735145,high
+156,560.31,Dove,Beauty & Personal Care,3.9,False,0,2,0.70653418962921,medium
+157,160.02,Nike,Sports,1.9,True,5,8,0.19135381407740124,low
+158,600.9,Samsung,Electronics,1.2,False,2,12,0.7587742441987669,high
+159,736.32,Penguin,Books,3.1,True,1,9,0.9330622015727358,high
+160,73.29,Penguin,Books,1.7,True,1,9,0.07973075586558385,low
+161,328.98,Zara,Fashion,4.8,True,3,15,0.4088083501718169,medium
+162,499.31,Samsung,Electronics,2.7,False,2,12,0.6280261007220169,medium
+163,171.36,H&M,Fashion,3.9,True,3,3,0.20594859650703354,low
+164,322.67,H&M,Fashion,3.7,False,3,3,0.40068726753240064,medium
+165,259.78,LEGO,Toys & Games,4.0,True,6,6,0.3197467148869354,low
+166,372.05,Apple,Electronics,5.0,True,2,1,0.464240209011699,medium
+167,434.73,Sony,Electronics,3.0,True,2,13,0.5449104879084673,medium
+168,705.88,Philips,Home & Kitchen,4.5,False,4,10,0.8938853781901954,high
+169,134.62,Uniqlo,Fashion,4.3,False,3,14,0.1586635606635864,low
+170,16.18,Penguin,Books,4.3,False,1,9,0.006229166398537949,low
+171,751.75,LG,Electronics,1.5,True,2,7,0.9529208870127028,high
+172,596.51,LG,Electronics,1.6,False,2,7,0.7531242358331509,high
+173,576.91,Puma,Sports,1.8,False,5,11,0.7278986859547741,high
+174,395.94,Penguin,Books,4.6,True,1,9,0.494987065470598,medium
+175,511.08,Sony,Electronics,4.3,True,2,13,0.6431743008275524,medium
+176,273.51,Apple,Electronics,1.5,False,2,1,0.3374174699803086,low
+177,595.57,Adidas,Sports,3.2,False,5,0,0.7519144390532697,high
+178,98.38,Apple,Electronics,4.8,True,2,1,0.11202203374560804,low
+179,669.33,Samsung,Electronics,3.3,True,2,12,0.8468448757384265,high
+180,110.68,Dove,Beauty & Personal Care,2.2,True,0,2,0.12785235331214043,low
+181,175.96,Philips,Home & Kitchen,2.0,True,4,10,0.21186887862134646,low
+182,626.29,Philips,Home & Kitchen,4.5,False,4,10,0.7914516274340724,high
+183,741.35,Nike,Sports,1.9,True,5,8,0.9395359013629518,high
+184,706.32,Adidas,Sports,1.1,False,5,0,0.894451666044608,high
+185,643.77,Dove,Beauty & Personal Care,4.5,True,0,2,0.8139486994684615,high
+186,135.77,H&M,Fashion,3.8,False,3,3,0.16014363119216463,low
+187,688.29,Samsung,Electronics,1.9,False,2,12,0.8712467341922031,high
+188,251.1,Philips,Home & Kitchen,4.2,True,4,10,0.30857539994079713,low
+189,28.69,Zara,Fashion,1.8,False,3,15,0.02232975971376723,low
+190,692.84,H&M,Fashion,4.9,False,3,3,0.8771026654139693,high
+191,516.77,Philips,Home & Kitchen,2.6,False,4,10,0.6504974323993873,medium
+192,101.12,Apple,Electronics,4.9,True,2,1,0.11554846265717705,low
+193,40.22,H&M,Fashion,3.4,False,3,3,0.03716907553507767,low
+194,354.75,IKEA,Home & Kitchen,4.9,True,4,4,0.44197480019047863,medium
+195,720.61,L'Oreal,Beauty & Personal Care,1.8,True,0,5,0.9128431511345062,high
+196,11.34,Dove,Beauty & Personal Care,4.7,True,0,2,0.0,low
+197,350.72,Philips,Home & Kitchen,4.8,False,4,10,0.4367881182512001,medium
+198,534.08,IKEA,Home & Kitchen,1.5,False,4,4,0.6727757113991171,medium
+199,254.33,Penguin,Books,2.6,False,1,9,0.3127324675993256,low
+200,447.99,Uniqlo,Fashion,1.8,False,3,14,0.5619763446118997,medium

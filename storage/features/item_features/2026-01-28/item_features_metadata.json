@@ -1,0 +1,63 @@
+{
+  "source": "item_features",
+  "data_type": "features",
+  "timestamp": "2026-01-28T01:44:13.248055",
+  "file_path": "storage\\features\\item_features\\2026-01-28\\item_features.parquet",
+  "file_size_bytes": 15052,
+  "record_count": 101,
+  "schema": {
+    "columns": [
+      "item_id",
+      "price",
+      "brand",
+      "category",
+      "rating",
+      "in_stock",
+      "category_encoded",
+      "brand_encoded",
+      "price_normalized",
+      "price_tier",
+      "popularity_score",
+      "avg_item_rating",
+      "purchase_count",
+      "view_count",
+      "view_to_purchase_rate"
+    ],
+    "dtypes": {
+      "item_id": "int64",
+      "price": "float64",
+      "brand": "object",
+      "category": "object",
+      "rating": "float64",
+      "in_stock": "bool",
+      "category_encoded": "int32",
+      "brand_encoded": "int32",
+      "price_normalized": "float64",
+      "price_tier": "category",
+      "popularity_score": "int64",
+      "avg_item_rating": "float64",
+      "purchase_count": "int64",
+      "view_count": "int64",
+      "view_to_purchase_rate": "float64"
+    }
+  },
+  "checksum_md5": "35a0c63ea95e2ed98c92b2e3841ed754",
+  "null_counts": {
+    "item_id": 0,
+    "price": 0,
+    "brand": 0,
+    "category": 0,
+    "rating": 0,
+    "in_stock": 0,
+    "category_encoded": 0,
+    "brand_encoded": 0,
+    "price_normalized": 0,
+    "price_tier": 0,
+    "popularity_score": 0,
+    "avg_item_rating": 0,
+    "purchase_count": 0,
+    "view_count": 0,
+    "view_to_purchase_rate": 0
+  },
+  "memory_usage_bytes": "21764"
+}
