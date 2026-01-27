@@ -165,14 +165,6 @@ Provides REST endpoints for:
 - Forwards received events to internal API endpoints
 - Supports consumer groups for scalability
 
-### Data Flow
-
-```
-Client Request → FastAPI (Public Endpoint) → Kafka Producer → Kafka Topic
-                                                                    │
-                                                                    ▼
-CSV Staging File ← FastAPI (Internal Endpoint) ← Kafka Consumer ◄──┘
-```
 
 ### Kafka Topics
 
@@ -191,11 +183,11 @@ The storage layer uses a partitioned directory structure managed by `DataLakeSto
 
 **Module**: `src/utils/storage.py`
 
-### Directory Structure
+## Directory Structure
 
 ```
 storage/
-├── raw/                          # Raw ingested data
+├── raw/                     # Raw ingested data (as-is from sources)                   
 │   ├── users/
 │   │   └── YYYY-MM-DD/
 │   │       ├── users_merged.parquet
@@ -206,37 +198,97 @@ storage/
 │   │       └── products_metadata.json
 │   └── transactions/
 │       └── YYYY-MM-DD/
-│           ├── transactions_merged.parquet
-│           └── transactions_merged_metadata.json
-├── validated/                    # Validated data
-├── prepared/                     # Cleaned & prepared data
-└── features/                     # Feature store data
+│           ├── transactions.parquet
+│           └── transactions_metadata.json
+├── prepared/               # Cleaned and preprocessed data               
+│   ├── users/
+│   │   └── YYYY-MM-DD/
+│   │       ├── users_merged.parquet
+│   │       └── users_merged_metadata.json
+│   ├── products/
+│   │   └── YYYY-MM-DD/
+│   │       ├── products.parquet
+│   │       └── products_metadata.json
+│   └── transactions/
+│       └── YYYY-MM-DD/
+│           ├── transactions.parquet
+│           └── transactions_metadata.json
+└── features/               # Engineered features               
+    ├── user_features/
+    │   └── YYYY-MM-DD/
+    │       ├── user_features.parquet
+    │       └── user_features_metadata.json
+    ├── item_features/
+    │   └── YYYY-MM-DD/
+    │       ├── item_features.parquet
+    │       └── item_features_metadata.json
+    └── interaction_features/
+        └── YYYY-MM-DD/
+            ├── interaction_features.parquet
+            └── interaction_features_metadata.json
+
 ```
 
-### Partitioning Strategy
+## Partitioning Strategy
 
-- **Format**: `storage/{data_type}/{source}/{YYYY-MM-DD}/`
-- **Time-based partitioning**: Data is organized by ingestion date
-- **Supports**: Multiple data layers (raw, validated, prepared, features)
+### Format
+```
+storage/{data_layer}/{source}/{YYYY-MM-DD}/{filename}.{format}
+```
 
-### Metadata Tracking
+### Components
+- **data_layer**: Stage in pipeline (raw, prepared, features)
+- **source**: Data source name (users, products, transactions)
+- **YYYY-MM-DD**: Date partition for temporal organization
+- **filename**: Descriptive name for the dataset
+- **format**: File format (parquet, json)
 
-Each stored file includes a companion metadata JSON file containing:
+## File Formats
 
-| Field              | Description                                    |
-|--------------------|------------------------------------------------|
-| source             | Data source name (users, products, transactions) |
-| data_type          | Data layer (raw, validated, prepared)          |
-| timestamp          | ISO format ingestion timestamp                 |
-| file_path          | Full path to the data file                     |
-| file_size_bytes    | File size in bytes                             |
-| record_count       | Number of records stored                       |
-| schema.columns     | List of column names                           |
-| schema.dtypes      | Column data types                              |
-| checksum_md5       | MD5 hash for integrity verification            |
-| null_counts        | Null count per column                          |
-| memory_usage_bytes | DataFrame memory usage                         |
+### Parquet (Primary)
+- **Usage**: Default storage format for all processed data
+- **Benefits**: 
+  - Columnar storage for efficient queries
+  - Built-in compression
+  - Schema preservation
+  - Fast read/write performance
 
+### JSON
+- **Usage**: Metadata files, configuration
+- **Use cases**: Lineage tracking, schema documentation
+
+## Metadata Files
+
+Each data file has an accompanying metadata JSON file with `_metadata` suffix.
+
+### Metadata Schema
+```json
+{
+  "source": "users",
+  "data_type": "raw",
+  "timestamp": "2026-01-22T18:30:00",
+  "file_path": "storage/raw/users/2026-01-22/users_merged.parquet",
+  "file_size_bytes": 123456,
+  "record_count": 927,
+  "schema": {
+    "columns": ["user_id", "age", "gender", "device"],
+    "dtypes": {
+      "user_id": "int64",
+      "age": "int64",
+      "gender": "object",
+      "device": "object"
+    }
+  },
+  "checksum_md5": "abc123...",
+  "null_counts": {
+    "user_id": 0,
+    "age": 5,
+    "gender": 2,
+    "device": 0
+  },
+  "memory_usage_bytes": 98765
+}
+```
 ---
 
 ## API Documentation
