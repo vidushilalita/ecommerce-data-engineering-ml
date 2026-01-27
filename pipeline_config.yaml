@@ -1,0 +1,407 @@
+# RecoMart Pipeline Configuration
+# This YAML file controls all aspects of the automated data pipeline
+# Edit this file to customize pipeline behavior without changing code
+
+# ==================== PIPELINE METADATA ====================
+pipeline:
+  # Pipeline name
+  name: recomart_data_pipeline
+  
+  # Pipeline description
+  description: >
+    Automated end-to-end data pipeline for RecoMart recommendation system.
+    Orchestrates data ingestion, validation, preparation, feature engineering,
+    and model training.
+  
+  # Enable/disable entire pipeline
+  enabled: true
+  
+  # Pipeline version
+  version: "1.0.0"
+
+# ==================== EXECUTION SETTINGS ====================
+execution:
+  # Execution mode: 'sequential' (one task after another)
+  #                 'parallel' (independent tasks run together)
+  mode: sequential
+  
+  # Global timeout for entire pipeline (seconds)
+  timeout_seconds: 3600  # 1 hour
+  
+  # Maximum number of retries for failed tasks
+  max_retries: 2
+  
+  # Delay between retry attempts (seconds)
+  retry_delay_seconds: 30
+  
+  # Continue execution if a non-critical task fails
+  continue_on_error: false
+
+# ==================== STORAGE CONFIGURATION ====================
+storage:
+  # Base directory for data lake storage
+  base_dir: storage
+  
+  # Directory containing source data
+  data_dir: data
+  
+  # Directory for trained models
+  models_dir: models
+  
+  # Directory for logs
+  logs_dir: logs
+
+# ==================== TASK CONFIGURATION ====================
+# Each task can be individually configured
+# Tasks automatically wait for their dependencies to complete
+tasks:
+  
+  # ────────────────────────────────────────────────────────
+  # INGESTION TASK
+  # ────────────────────────────────────────────────────────
+  ingestion:
+    # Enable/disable this task
+    enabled: true
+    
+    # This task has no dependencies (root task)
+    depends_on: []
+    
+    # Task timeout in seconds (individual task timeout)
+    timeout_seconds: 300
+    
+    # Number of retries for this specific task
+    retry_count: 2
+    
+    # Retry delay for this task (seconds)
+    retry_delay: 30
+    
+    # Task-specific configuration
+    config:
+      # Parallelization settings for ingestion
+      parallel_ingestion: true
+      
+      # Sub-tasks within ingestion
+      sub_tasks:
+        - name: ingest_users
+          enabled: true
+          timeout: 120
+        - name: ingest_products
+          enabled: true
+          timeout: 120
+        - name: ingest_transactions
+          enabled: true
+          timeout: 120
+  
+  # ────────────────────────────────────────────────────────
+  # VALIDATION TASK
+  # ────────────────────────────────────────────────────────
+  validation:
+    # Enable/disable this task
+    enabled: true
+    
+    # This task depends on ingestion
+    # Will automatically wait for ingestion to complete
+    depends_on:
+      - ingestion
+    
+    # Task timeout in seconds
+    timeout_seconds: 600
+    
+    # Number of retries
+    retry_count: 2
+    
+    # Task-specific configuration
+    config:
+      # Enable data quality checks
+      check_completeness: true
+      check_consistency: true
+      check_correctness: true
+      
+      # Minimum quality score (0-1) to pass validation
+      min_quality_score: 0.90
+      
+      # Save validation results
+      save_results: true
+      results_dir: reports
+  
+  # ────────────────────────────────────────────────────────
+  # PREPARATION TASK (Data Cleaning & Processing)
+  # ────────────────────────────────────────────────────────
+  preparation:
+    # Enable/disable this task
+    enabled: true
+    
+    # This task depends on validation
+    # Will automatically wait for validation to complete
+    depends_on:
+      - validation
+    
+    # Task timeout in seconds
+    timeout_seconds: 600
+    
+    # Number of retries
+    retry_count: 1
+    
+    # Task-specific configuration
+    config:
+      # Data cleaning settings
+      remove_duplicates: true
+      handle_missing_values: true
+      
+      # Encoding settings
+      encode_categorical: true
+      encoding_method: label_encoding  # or one_hot
+      
+      # Normalization settings
+      normalize_numerical: true
+      normalization_method: minmax  # or standard
+      
+      # Output format for cleaned data
+      output_format: parquet
+  
+  # ────────────────────────────────────────────────────────
+  # FEATURE ENGINEERING TASK
+  # ────────────────────────────────────────────────────────
+  features:
+    # Enable/disable this task
+    enabled: true
+    
+    # This task depends on preparation
+    # Will automatically wait for preparation to complete
+    depends_on:
+      - preparation
+    
+    # Task timeout in seconds
+    timeout_seconds: 600
+    
+    # Number of retries
+    retry_count: 1
+    
+    # Task-specific configuration
+    config:
+      # User feature settings
+      create_user_features: true
+      user_features:
+        - activity_count
+        - avg_rating
+        - purchase_ratio
+        - preferred_category
+      
+      # Item feature settings
+      create_item_features: true
+      item_features:
+        - popularity_score
+        - avg_rating
+        - price_tier
+        - view_to_purchase_rate
+      
+      # Interaction feature settings
+      create_interaction_features: true
+      interaction_features:
+        - implicit_score
+        - recency_weight
+      
+      # Feature output format
+      output_format: parquet
+  
+  # ────────────────────────────────────────────────────────
+  # MODEL TRAINING TASK
+  # ────────────────────────────────────────────────────────
+  training:
+    # Enable/disable this task
+    enabled: true
+    
+    # This task depends on features
+    # Will automatically wait for features to complete
+    depends_on:
+      - features
+    
+    # Task timeout in seconds
+    timeout_seconds: 900  # 15 minutes for training
+    
+    # Number of retries (careful with expensive training tasks)
+    retry_count: 1
+    
+    # Task-specific configuration
+    config:
+      # Model type
+      model_type: collaborative_filtering_svd
+      
+      # SVD hyperparameters
+      svd:
+        n_factors: 50
+        n_epochs: 20
+        learning_rate: 0.005
+        regularization: 0.02
+        random_state: 42
+      
+      # Train/test split
+      train_test_split: 0.8
+      
+      # Model output
+      save_model: true
+      model_format: pickle  # or joblib, onnx
+      model_name: collaborative_filtering
+
+# ==================== LOGGING CONFIGURATION ====================
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: INFO
+  
+  # Log file path
+  file: logs/pipeline.log
+  
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Maximum log file size (MB)
+  max_size: 100
+  
+  # Number of backup log files to keep
+  backup_count: 5
+
+# ==================== SCHEDULING CONFIGURATION ====================
+# Configure automated pipeline execution
+scheduling:
+  # Enable automated scheduling
+  enabled: false
+  
+  # Cron expression for schedule
+  # Format: "minute hour day month day_of_week"
+  # Examples:
+  #   "0 2 * * *"     - Every day at 2 AM
+  #   "0 */2 * * *"   - Every 2 hours
+  #   "0 9 * * MON"   - Every Monday at 9 AM
+  cron: "0 2 * * *"
+  
+  # Timezone for schedule (IANA format)
+  timezone: UTC
+  
+  # Whether to run immediately when Dagster starts
+  run_on_startup: false
+
+# ==================== NOTIFICATION CONFIGURATION ====================
+# Optional: Configure notifications for task completion/failure
+notifications:
+  # Enable notifications
+  enabled: false
+  
+  # Email notifications
+  email:
+    enabled: false
+    smtp_server: smtp.gmail.com
+    smtp_port: 587
+    sender: pipeline@recomart.ai
+    recipients:
+      - admin@recomart.ai
+    
+    # Send email on success
+    notify_success: false
+    
+    # Send email on failure
+    notify_failure: true
+  
+  # Slack notifications
+  slack:
+    enabled: false
+    webhook_url: "https://hooks.slack.com/..."
+    channel: "#pipeline-alerts"
+    notify_success: false
+    notify_failure: true
+
+# ==================== MONITORING CONFIGURATION ====================
+monitoring:
+  # Enable detailed monitoring
+  enabled: true
+  
+  # Track task execution time
+  track_duration: true
+  
+  # Track resource usage (memory, CPU)
+  track_resources: true
+  
+  # Data quality monitoring
+  data_quality:
+    enabled: true
+    track_record_counts: true
+    track_null_percentages: true
+    track_schema_changes: true
+  
+  # Performance monitoring
+  performance:
+    enabled: true
+    slow_task_threshold_seconds: 300  # Warn if task takes > 5 minutes
+
+# ==================== RETRY POLICY ====================
+retry_policy:
+  # Exponential backoff settings
+  use_exponential_backoff: true
+  
+  # Base backoff time (seconds)
+  backoff_base: 2
+  
+  # Maximum backoff time (seconds)
+  max_backoff: 300
+  
+  # What types of errors to retry
+  retry_on_errors:
+    - timeout
+    - connection_error
+    - memory_error
+  
+  # Errors that should NOT be retried
+  no_retry_on:
+    - file_not_found
+    - schema_error
+    - validation_error
+
+# ==================== RESOURCE LIMITS ====================
+resources:
+  # Maximum memory per task (GB)
+  max_memory_gb: 4
+  
+  # Maximum CPU cores per task
+  max_cpu_cores: 2
+  
+  # Maximum disk space for temporary files (GB)
+  max_disk_gb: 10
+
+# ==================== FEATURE FLAGS ====================
+# Enable/disable experimental features
+features:
+  # Incremental data processing
+  incremental_processing: false
+  
+  # Parallel task execution (if mode is parallel)
+  parallel_execution: true
+  
+  # Caching of intermediate results
+  caching_enabled: false
+  
+  # Data lineage tracking
+  track_lineage: true
+  
+  # Automated backups of data
+  auto_backup: false
+
+# ==================== ENVIRONMENT ====================
+environment:
+  # Environment name (dev, staging, prod)
+  name: development
+  
+  # Environment-specific settings
+  dev:
+    debug_mode: true
+    log_level: DEBUG
+    storage_compression: false
+  
+  staging:
+    debug_mode: false
+    log_level: INFO
+    storage_compression: true
+  
+  production:
+    debug_mode: false
+    log_level: WARNING
+    storage_compression: true
+    enable_monitoring: true

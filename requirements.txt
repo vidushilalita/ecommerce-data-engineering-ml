@@ -28,6 +28,8 @@ scikit-surprise
 mlflow
 
 # Orchestration
+dagster>=1.5.0
+dagster-webui>=1.5.0
 apache-airflow
 
 # Visualization & Plotting
