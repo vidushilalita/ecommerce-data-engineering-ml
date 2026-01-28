@@ -345,15 +345,9 @@ def recomart_etl_graph():
     Define the data ingestion graph
     All ingestion ops run in parallel since they're independent
     """
-    users_result = ingest_users_op()
-    products_result = ingest_products_op()
-    transactions_result = ingest_transactions_op()
-    
-    return {
-        'users': users_result,
-        'products': products_result,
-        'transactions': transactions_result
-    }
+    ingest_users_op()
+    ingest_products_op()
+    ingest_transactions_op()
 
 
 @graph
@@ -385,9 +379,7 @@ def recomart_pipeline_graph():
     features_result = engineer_features_op(prep_result=prep_result)
     
     # Step 5: Model Training (depends on features)
-    model_result = train_model_op(features_result=features_result)
-    
-    return model_result
+    train_model_op(features_result=features_result)
 
 
 # ==================== JOB DEFINITIONS ====================

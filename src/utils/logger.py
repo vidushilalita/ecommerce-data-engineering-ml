@@ -34,9 +34,11 @@ class ColoredFormatter(logging.Formatter):
     }
     
     def format(self, record):
-        log_color = self.COLORS.get(record.levelname, '')
-        record.levelname = f"{log_color}{record.levelname}{colorama.Style.RESET_ALL}"
-        return super().format(record)
+        # Create a copy of the record to avoid modifying the original
+        log_record = logging.makeLogRecord(record.__dict__)
+        log_color = self.COLORS.get(log_record.levelname, '')
+        log_record.levelname = f"{log_color}{log_record.levelname}{colorama.Style.RESET_ALL}"
+        return super().format(log_record)
 
 
 def get_logger(name: str, level: str = 'INFO') -> logging.Logger:
