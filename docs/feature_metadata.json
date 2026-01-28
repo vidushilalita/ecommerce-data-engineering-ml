@@ -1,0 +1,62 @@
+[
+  {
+    "feature_name": "user_activity_count",
+    "feature_type": "user",
+    "description": "Total number of user interactions",
+    "data_type": "INTEGER",
+    "source_table": "transactions",
+    "computation_logic": "COUNT(transactions WHERE user_id = X)",
+    "created_at": "2026-01-28 01:47:17.996959",
+    "updated_at": "2026-01-28 01:47:17.996959"
+  },
+  {
+    "feature_name": "avg_rating_given",
+    "feature_type": "user",
+    "description": "Average rating given by user",
+    "data_type": "REAL",
+    "source_table": "transactions",
+    "computation_logic": "AVG(rating WHERE user_id = X)",
+    "created_at": "2026-01-28 01:47:17.997954",
+    "updated_at": "2026-01-28 01:47:17.997954"
+  },
+  {
+    "feature_name": "purchase_ratio",
+    "feature_type": "user",
+    "description": "Proportion of interactions that are purchases",
+    "data_type": "REAL",
+    "source_table": "transactions",
+    "computation_logic": "COUNT(purchases) / COUNT(total_interactions)",
+    "created_at": "2026-01-28 01:47:17.997954",
+    "updated_at": "2026-01-28 01:47:17.997954"
+  },
+  {
+    "feature_name": "popularity_score",
+    "feature_type": "item",
+    "description": "Number of interactions the item received",
+    "data_type": "INTEGER",
+    "source_table": "transactions",
+    "computation_logic": "COUNT(interactions WHERE item_id = Y)",
+    "created_at": "2026-01-28 01:47:17.997954",
+    "updated_at": "2026-01-28 01:47:17.997954"
+  },
+  {
+    "feature_name": "avg_item_rating",
+    "feature_type": "item",
+    "description": "Average rating received by item",
+    "data_type": "REAL",
+    "source_table": "transactions",
+    "computation_logic": "AVG(rating WHERE item_id = Y)",
+    "created_at": "2026-01-28 01:47:17.997954",
+    "updated_at": "2026-01-28 01:47:17.997954"
+  },
+  {
+    "feature_name": "view_to_purchase_rate",
+    "feature_type": "item",
+    "description": "Conversion rate from views to purchases",
+    "data_type": "REAL",
+    "source_table": "transactions",
+    "computation_logic": "COUNT(purchases) / COUNT(views)",
+    "created_at": "2026-01-28 01:47:17.997954",
+    "updated_at": "2026-01-28 01:47:17.997954"
+  }
+]
