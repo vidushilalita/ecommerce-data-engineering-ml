@@ -48,14 +48,14 @@ Thumbs.db
 logs/
 
 # Data (tracked by DVC instead)
-storage/
-data/*.csv
-data/*.json
-data/*.parquet
-!data/.gitkeep
+# storage/
+# data/*.csv
+# data/*.json
+# data/*.parquet
+# !data/.gitkeep
 
 # Models (tracked by DVC)
-models/*.pkl
+# models/*.pkl
 models/*.h5
 models/*.pth
 !models/.gitkeep
@@ -103,4 +103,3 @@ site/
 # Compiled files
 *.pyc
 *.pyo
-mlflow.db

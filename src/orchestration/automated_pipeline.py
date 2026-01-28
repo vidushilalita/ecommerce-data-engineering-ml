@@ -133,6 +133,10 @@ def build_graph_with_dependencies():
             # Execute op (dependencies are implicit through sequential execution)
             result = op_func()
             task_results[task_name] = result
+        
+        # Return final task result
+        final_task = execution_order[-1] if execution_order else None
+        return task_results[final_task] if final_task else None
     
     return configured_pipeline_graph
 
@@ -171,7 +175,7 @@ def automated_pipeline_job():
     - ✓ Error handling and recovery
     """
     graph = build_graph_with_dependencies()
-    graph()
+    return graph()
 
 
 @job(
@@ -182,7 +186,7 @@ def automated_pipeline_job():
 def ingestion_only_job():
     """Job that runs only the ingestion task"""
     if CONFIG.is_task_enabled('ingestion'):
-        TASK_OPS['ingestion']()
+        return TASK_OPS['ingestion']()
     else:
         raise Exception("Ingestion task is disabled in configuration")
 
@@ -195,37 +199,10 @@ def ingestion_only_job():
 def validation_only_job():
     """Job that runs only the validation task"""
     if CONFIG.is_task_enabled('validation'):
-        TASK_OPS['ingestion']()
-        TASK_OPS['validation']()
+        ingestion_result = TASK_OPS['ingestion']()
+        return TASK_OPS['validation']()
     else:
         raise Exception("Validation task is disabled in configuration")
-
-
-@job(
-    name="model_training_job",
-    description="Run model training only (requires prior feature engineering)",
-    tags={"type": "training", "config_driven": "true"}
-)
-def model_training_job():
-    """Job that runs only the model training task"""
-    if CONFIG.is_task_enabled('training'):
-        TASK_OPS['training']()
-    else:
-        raise Exception("Training task is disabled in configuration")
-
-
-@job(
-    name="feature_engineering_job",
-    description="Run data preparation and feature engineering (requires prior validation)",
-    tags={"type": "features", "config_driven": "true"}
-)
-def feature_engineering_job():
-    """Job that runs preparation and feature engineering tasks"""
-    if CONFIG.is_task_enabled('preparation') and CONFIG.is_task_enabled('features'):
-        TASK_OPS['preparation']()
-        TASK_OPS['features']()
-    else:
-        raise Exception("Preparation or features task is disabled in configuration")
 
 
 # ==================== EXECUTION HELPERS ====================

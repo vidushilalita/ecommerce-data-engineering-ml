@@ -507,17 +507,10 @@ def execute_task(context, task_name: str, task_config: Dict, config: PipelineCon
             validation_results = validator.run_validation_suite()
             validator.save_validation_results(validation_results)
             
-            # Check if quality score meets threshold
-            quality_score = validation_results['overall']['quality_score']
-            passed_checks = validation_results['overall']['passed_checks']
-            total_checks = validation_results['overall']['total_checks']
-            
             result = {
                 'status': 'success',
-                'quality_score': quality_score,
-                'passed_checks': passed_checks,
-                'total_checks': total_checks,
-                'quality_threshold': config.get('validation', {}).get('quality_gate_threshold', 0.95)
+                'quality_score': validation_results['overall']['quality_score'],
+                'issues': len(validation_results['issues'])
             }
         
         elif task_name == 'preparation':
@@ -561,7 +554,7 @@ def execute_task(context, task_name: str, task_config: Dict, config: PipelineCon
             result = {
                 'status': 'success',
                 'model_path': str(model_path),
-                'training_records': trainset.n_ratings,
+                'training_records': len(trainset.all_ratings()),
                 'test_records': len(testset)
             }
         

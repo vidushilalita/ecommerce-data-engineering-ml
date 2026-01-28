@@ -206,6 +206,59 @@ class DataLakeStorage:
         return df
 
 
+
+def load_training(
+        self,
+        source: str,
+        data_type: str,
+        format: str = 'parquet'
+    ) -> pd.DataFrame:
+        """
+        Load most recent data from storage
+        
+        Args:
+            source: Data source name
+            data_type: Data layer
+            format: File format
+        
+        Returns:
+            DataFrame with loaded data
+        """
+        source_path = self.base_path / data_type / source
+        
+        if not source_path.exists():
+            raise FileNotFoundError(f"No data found at {source_path}")
+        
+        # Find most recent partition
+        partitions = sorted([p for p in source_path.iterdir() if p.is_dir()], reverse=True)
+        
+        if not partitions:
+            raise FileNotFoundError(f"No partitions found in {source_path}")
+        
+        latest_partition = partitions[0]
+        df=pd.DataFrame()
+
+        for p in partitions:
+            data_files = list(p.glob(f"*.{format}"))
+            file_path = data_files[0]
+            data_files = [f for f in data_files if not f.stem.endswith('_metadata')]
+            df_partition = pd.read_parquet(data_files[0])
+            df=pd.concat([df,df_partition],ignore_index=True)
+            logger.info(f"Loaded {len(df)} records from {file_path}")
+        # Find data file
+        #data_files = list(latest_partition.glob(f"*.{format}"))
+        #data_files = [f for f in data_files if not f.stem.endswith('_metadata')]
+        
+        if not data_files:
+            raise FileNotFoundError(f"No {format} files found in {latest_partition}")
+        
+        #file_path = data_files[0]
+        
+        return df
+
+
+
+
 if __name__ == '__main__':
     # Test storage functionality
     storage = DataLakeStorage()

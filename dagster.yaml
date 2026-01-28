@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 # Dagster Configuration File
 # Using simplified configuration for compatibility
@@ -10,6 +11,11 @@ storage:
 # Dagster 1.12+ Instance Configuration
 # Must use explicit class/module schema
 
+=======
+# Dagster 1.12+ Instance Configuration
+# Must use explicit class/module schema
+
+>>>>>>> Stashed changes
 run_storage:
   module: dagster._core.storage.runs
   class: SqliteRunStorage
@@ -58,4 +64,7 @@ run_retries:
 
 telemetry:
   enabled: false
+<<<<<<< Updated upstream
 >>>>>>> 0d82e9ec8d55ca8171037577f7fd1d831ff6a523
+=======
+>>>>>>> Stashed changes
