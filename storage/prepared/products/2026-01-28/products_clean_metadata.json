@@ -1,0 +1,48 @@
+{
+  "source": "products",
+  "data_type": "prepared",
+  "timestamp": "2026-01-28T17:31:17.023437",
+  "file_path": "storage\\prepared\\products\\2026-01-28\\products_clean.parquet",
+  "file_size_bytes": 9195,
+  "record_count": 101,
+  "schema": {
+    "columns": [
+      "item_id",
+      "price",
+      "brand",
+      "category",
+      "rating",
+      "in_stock",
+      "category_encoded",
+      "brand_encoded",
+      "price_normalized",
+      "price_tier"
+    ],
+    "dtypes": {
+      "item_id": "int64",
+      "price": "float64",
+      "brand": "object",
+      "category": "object",
+      "rating": "float64",
+      "in_stock": "bool",
+      "category_encoded": "int32",
+      "brand_encoded": "int32",
+      "price_normalized": "float64",
+      "price_tier": "category"
+    }
+  },
+  "checksum_md5": "4d3f8d909846af33efb220cebf9407a4",
+  "null_counts": {
+    "item_id": 0,
+    "price": 0,
+    "brand": 0,
+    "category": 0,
+    "rating": 0,
+    "in_stock": 0,
+    "category_encoded": 0,
+    "brand_encoded": 0,
+    "price_normalized": 0,
+    "price_tier": 0
+  },
+  "memory_usage_bytes": "16084"
+}

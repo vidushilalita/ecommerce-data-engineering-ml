@@ -1,0 +1,33 @@
+{
+  "source": "transactions",
+  "data_type": "raw",
+  "timestamp": "2026-01-28T17:31:14.826558",
+  "file_path": "storage\\raw\\transactions\\2026-01-28\\transactions_merged.parquet",
+  "file_size_bytes": 45130,
+  "record_count": 3873,
+  "schema": {
+    "columns": [
+      "user_id",
+      "item_id",
+      "view_mode",
+      "rating",
+      "timestamp"
+    ],
+    "dtypes": {
+      "user_id": "int64",
+      "item_id": "int64",
+      "view_mode": "object",
+      "rating": "int64",
+      "timestamp": "datetime64[ns]"
+    }
+  },
+  "checksum_md5": "a1b7ea27c4e91354397951d9442308a6",
+  "null_counts": {
+    "user_id": 0,
+    "item_id": 0,
+    "view_mode": 0,
+    "rating": 0,
+    "timestamp": 873
+  },
+  "memory_usage_bytes": "337871"
+}

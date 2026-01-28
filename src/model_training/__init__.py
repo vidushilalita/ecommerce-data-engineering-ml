@@ -1,6 +1,6 @@
 """Models package for RecoMart Data Pipeline"""
 
 from .collaborative_filtering import CollaborativeFilteringModel
-from .evaluate import ModelEvaluator
+from .evaluate import RecommendationEvaluator
 
-__all__ = ['CollaborativeFilteringModel', 'ModelEvaluator']
+__all__ = ['CollaborativeFilteringModel', 'RecommendationEvaluator']

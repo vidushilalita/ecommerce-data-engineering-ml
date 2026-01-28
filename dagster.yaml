@@ -1,21 +1,6 @@
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-# Dagster Configuration File
-# Using simplified configuration for compatibility
+# Dagster Instance Configuration
+# Simplified configuration for Dagster 1.5+
 
-# Storage location for all Dagster data
-storage:
-  sqlite:
-    base_dir: ./dagster_data
-=======
-# Dagster 1.12+ Instance Configuration
-# Must use explicit class/module schema
-
-=======
-# Dagster 1.12+ Instance Configuration
-# Must use explicit class/module schema
-
->>>>>>> Stashed changes
 run_storage:
   module: dagster._core.storage.runs
   class: SqliteRunStorage
@@ -34,18 +19,6 @@ schedule_storage:
   config:
     base_dir: ./dagster_data/schedules
 
-local_artifact_storage:
-  module: dagster._core.storage.root
-  class: LocalArtifactStorage
-  config:
-    base_dir: ./dagster_data/artifacts
-
-compute_logs:
-  module: dagster._core.storage.compute_logs
-  class: LocalComputeLogManager
-  config:
-    base_dir: ./dagster_data/compute_logs
-
 run_launcher:
   module: dagster._core.launcher
   class: DefaultRunLauncher
@@ -54,17 +27,9 @@ run_coordinator:
   module: dagster._core.run_coordinator
   class: DefaultRunCoordinator
 
-concurrency:
-  runs:
-    max_concurrent_runs: 4
-
 run_retries:
   enabled: true
   max_retries: 2
 
 telemetry:
   enabled: false
-<<<<<<< Updated upstream
->>>>>>> 0d82e9ec8d55ca8171037577f7fd1d831ff6a523
-=======
->>>>>>> Stashed changes

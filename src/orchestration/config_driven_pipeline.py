@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 import json
 import yaml
+import mlflow
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
@@ -507,10 +508,21 @@ def execute_task(context, task_name: str, task_config: Dict, config: PipelineCon
             validation_results = validator.run_validation_suite()
             validator.save_validation_results(validation_results)
             
+            # Count failed validations across all datasets
+            failed_checks = 0
+            for dataset in ['users', 'products', 'transactions']:
+                if dataset in validation_results:
+                    failed_checks += sum(
+                        1 for v in validation_results[dataset]['validations'] 
+                        if not v['passed']
+                    )
+            
             result = {
                 'status': 'success',
                 'quality_score': validation_results['overall']['quality_score'],
-                'issues': len(validation_results['issues'])
+                'total_checks': validation_results['overall']['total_checks'],
+                'passed_checks': validation_results['overall']['passed_checks'],
+                'failed_checks': failed_checks
             }
         
         elif task_name == 'preparation':
@@ -542,20 +554,43 @@ def execute_task(context, task_name: str, task_config: Dict, config: PipelineCon
             storage = DataLakeStorage(storage_base)
             interactions_df = storage.load_latest('interaction_features', 'features')
             
-            cf_model = CollaborativeFilteringModel()
-            dataset = cf_model.prepare_data(interactions_df)
-            trainset, testset = cf_model.train(dataset)
+            # Start MLflow run
+            mlflow.set_experiment("CF-SVD-Recommendations")
             
-            models_dir = Path('models')
-            models_dir.mkdir(exist_ok=True)
-            model_path = models_dir / 'collaborative_filtering.pkl'
-            cf_model.save_model(str(model_path))
+            with mlflow.start_run(run_name="automated_pipeline_training"):
+                # Log parameters
+                mlflow.log_param("algorithm", "SVD")
+                mlflow.log_param("n_factors", 100)
+                mlflow.log_param("n_epochs", 20)
+                mlflow.log_param("lr_all", 0.005)
+                mlflow.log_param("reg_all", 0.02)
+                
+                cf_model = CollaborativeFilteringModel()
+                dataset = cf_model.prepare_data(interactions_df)
+                trainset, testset = cf_model.train(dataset)
+                
+                # Log training metrics
+                mlflow.log_metric("training_records", trainset.n_ratings)
+                mlflow.log_metric("test_records", len(testset))
+                mlflow.log_metric("n_users", trainset.n_users)
+                mlflow.log_metric("n_items", trainset.n_items)
+                
+                models_dir = Path('models')
+                models_dir.mkdir(exist_ok=True)
+                model_path = models_dir / 'collaborative_filtering.pkl'
+                cf_model.save_model(str(model_path))
+                
+                # Log model artifact
+                mlflow.log_artifact(str(model_path), artifact_path="models")
+                
+                context.log.info(f"MLflow run logged: {mlflow.active_run().info.run_id}")
             
             result = {
                 'status': 'success',
                 'model_path': str(model_path),
-                'training_records': len(trainset.all_ratings()),
-                'test_records': len(testset)
+                'training_records': trainset.n_ratings,
+                'test_records': len(testset),
+                'mlflow_run_id': mlflow.active_run().info.run_id if mlflow.active_run() else None
             }
         
         else:

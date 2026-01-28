@@ -23,6 +23,7 @@ from dagster import (
     DynamicOutput,
     execute_job,
     DagsterInstance,
+    in_process_executor,
 )
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -151,7 +152,8 @@ def build_graph_with_dependencies():
         "type": "production",
         "config_driven": "true",
         "mode": CONFIG.get_execution_mode()
-    }
+    },
+    executor_def=in_process_executor
 )
 def automated_pipeline_job():
     """
@@ -174,19 +176,19 @@ def automated_pipeline_job():
     - ✓ Detailed logging
     - ✓ Error handling and recovery
     """
-    graph = build_graph_with_dependencies()
-    return graph()
+    build_graph_with_dependencies()()
 
 
 @job(
     name="ingestion_only_job",
     description="Run only data ingestion (from pipeline_config.yaml)",
-    tags={"type": "ingestion", "config_driven": "true"}
+    tags={"type": "ingestion", "config_driven": "true"},
+    executor_def=in_process_executor
 )
 def ingestion_only_job():
     """Job that runs only the ingestion task"""
     if CONFIG.is_task_enabled('ingestion'):
-        return TASK_OPS['ingestion']()
+        TASK_OPS['ingestion']()
     else:
         raise Exception("Ingestion task is disabled in configuration")
 
@@ -194,13 +196,14 @@ def ingestion_only_job():
 @job(
     name="validation_only_job",
     description="Run only validation (requires prior ingestion)",
-    tags={"type": "validation", "config_driven": "true"}
+    tags={"type": "validation", "config_driven": "true"},
+    executor_def=in_process_executor
 )
 def validation_only_job():
     """Job that runs only the validation task"""
     if CONFIG.is_task_enabled('validation'):
-        ingestion_result = TASK_OPS['ingestion']()
-        return TASK_OPS['validation']()
+        TASK_OPS['ingestion']()
+        TASK_OPS['validation']()
     else:
         raise Exception("Validation task is disabled in configuration")
 

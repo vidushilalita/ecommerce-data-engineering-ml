@@ -29,6 +29,7 @@ from dagster import (
     config_mapping,
     resource,
     logger as dagster_logger,
+    in_process_executor,
 )
 import pandas as pd
 
@@ -345,15 +346,9 @@ def recomart_etl_graph():
     Define the data ingestion graph
     All ingestion ops run in parallel since they're independent
     """
-    users_result = ingest_users_op()
-    products_result = ingest_products_op()
-    transactions_result = ingest_transactions_op()
-    
-    return {
-        'users': users_result,
-        'products': products_result,
-        'transactions': transactions_result
-    }
+    ingest_users_op()
+    ingest_products_op()
+    ingest_transactions_op()
 
 
 @graph
@@ -395,21 +390,23 @@ def recomart_pipeline_graph():
 @job(
     name="recomart_ingestion_only",
     description="Run data ingestion pipeline only (ingestion ops in parallel)",
-    tags={"pipeline": "ingestion"}
+    tags={"pipeline": "ingestion"},
+    executor_def=in_process_executor
 )
 def ingestion_job():
     """Job: Data Ingestion Only"""
-    return recomart_etl_graph()
+    recomart_etl_graph()
 
 
 @job(
     name="recomart_complete_pipeline",
     description="Run complete end-to-end pipeline (ingestion → validation → prep → features → training)",
-    tags={"pipeline": "complete"}
+    tags={"pipeline": "complete"},
+    executor_def=in_process_executor
 )
 def complete_pipeline_job():
     """Job: Complete End-to-End Pipeline"""
-    return recomart_pipeline_graph()
+    recomart_pipeline_graph()
 
 
 # ==================== SENSOR OPS (Optional - Advanced) ====================
